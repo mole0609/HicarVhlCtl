@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:async';
+
+import 'package:video_player/video_player.dart';
 
 ///
 /// 当加载好视频之后自动播放,仅提供
@@ -14,10 +17,14 @@ class CarControlHomeActivity extends StatefulWidget {
 }
 
 class _VideoState extends State<CarControlHomeActivity> {
+  final String TAG = '[CarContrlLog]';
+
   VideoPlayerController _controllerLock, _controllerUnLock;
   bool _isInit = false;
+  bool _isUnLockInit = false;
   bool _isLocked = true;
   int _index = 1;
+  Completer<void> _creatingCompleter;
 
   _VideoState() {
     _controllerLock = VideoPlayerController.asset(
@@ -28,18 +35,17 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
     _controllerLock.setLooping(false);
     _controllerUnLock.setLooping(false);
-    _controllerLock.setVolume(00.0);
-    _controllerUnLock.setVolume(00.0);
+    _controllerLock.setVolume(0.0);
+    _controllerUnLock.setVolume(0.0);
 
     ///随着播放会一直调用
     _controllerLock.addListener(() {
       final bool isPlaying = _controllerLock.value.isPlaying;
+//      _controllerLock.value.,
       setState(() {
-        _isLocked = !isPlaying;
+//        _isLocked = !isPlaying;
       });
     });
-    //还没准备好的时候没有不会播放
-//    _controller.play();
   }
 
   @override
@@ -50,7 +56,13 @@ class _VideoState extends State<CarControlHomeActivity> {
         _isInit = _controllerLock.value.initialized;
       });
     });
-    _controllerUnLock.initialize();
+    printLog('initState--------------_isInit: ' + _isInit.toString());
+    _controllerUnLock.initialize().then((value) {
+      setState(() {
+        _isInit &= _controllerUnLock.value.initialized;
+      });
+    });
+    printLog('initState--------------_isInit: ' + _isInit.toString());
   }
 
   @override
@@ -63,41 +75,151 @@ class _VideoState extends State<CarControlHomeActivity> {
   ///创建播放中的视频界面
   Widget _buildPlayingWidget() {
     return AspectRatio(
-        aspectRatio: 328 / 230,
-        child: GestureDetector(
-          onTap: () {
-            if (_controllerLock.value.isPlaying) {
-//              _controller.pause();
-            } else {
-              _controllerLock.play();
-            }
-          },
-          child: _isLocked
-              ? VideoPlayer(_controllerLock)
-              : VideoPlayer(_controllerUnLock),
-        ));
+            aspectRatio: 328 / 230,
+            child: GestureDetector(child: VideoPlayer(_controllerLock)));
   }
 
   ///视频正在加载的界面
   Widget _buildInitingWidget() {
+    printLog('_buildInitingWidget--------------_isInit: ' + _isInit.toString());
     return AspectRatio(
       aspectRatio: 328 / 230,
       child: Stack(
         children: <Widget>[
-          VideoPlayer(_controllerLock),
-//          const Center(
-//
-//              child: IconButton(
-//                  icon: ImageIcon(
-//                    AssetImage(
-//                      'images/home_icon_lock@3x.png',
-//                    ),
-//                    color: Colors.white,size: 100.0,
-//                  ),
-//                  onPressed: null),
-//          ),
+              VideoPlayer(_controllerLock),
         ],
       ),
+    );
+  }
+
+  _getCurrentTime() {
+    return formatDate(
+        DateTime.now(), [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn, ':', ss]);
+  }
+
+  Widget _checkAndPlayVideo() {
+    return _isInit ? _buildPlayingWidget() : _buildInitingWidget();
+  }
+
+  Widget _myFlatButton(bool isLocked) {
+    return isLocked
+        ? FlatButton(
+            onPressed: () {
+              printLog('FlatButton----------isLock: ' + _isLocked.toString());
+              _controllerLock.play().whenComplete(actionLockComplt);
+            },
+            child: _myButton('解锁'))
+        : FlatButton(
+            onPressed: () {
+              printLog('FlatButton----------isLock: ' + _isLocked.toString());
+              _controllerLock.play().whenComplete(actionUnLockComplt);
+            },
+            child:_myButton('上锁'));
+  }
+
+  Widget _myButton(String msg) {
+    return Text(
+      '                 ${msg}                 ',
+      style: TextStyle(color: Colors.white, fontSize: 25),
+    );
+  }
+
+  _pageUnlock() {
+    return Container(
+      child: Column(children: <Widget>[
+        Offstage(
+          offstage: false,
+          child: _checkAndPlayVideo(),
+        ),
+        SizedBox(
+          child: Container(
+            padding: EdgeInsets.only(
+              left: 20,
+            ),
+            color: const Color(0xFF100F27),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  child: Image(
+                    image: AssetImage('images/home_icon_refresh@3x.png'),
+                    fit: BoxFit.contain,
+                    height: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 5.0),
+                  child: Text(
+                    "刷新时间：${_getCurrentTime()}",
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 80,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.only(top: 10),
+                color: const Color(0xFF100F27),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25))),
+                        color: const Color(0xFF584AA8),
+                      ),
+                      child: _myFlatButton(_isLocked),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )
+      ]),
+    );
+  }
+
+  _pageCarControl() {
+    return Container(
+      child: Column(children: <Widget>[
+        SizedBox(
+          height: 230.0,
+          width: 328.0,
+          child: Text(
+            "PAGE2",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  _pageCarMode() {
+    return Container(
+      child: Column(children: <Widget>[
+        SizedBox(
+          height: 230.0,
+          width: 328.0,
+          child: Text(
+            "PAGE3",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ]),
     );
   }
 
@@ -267,124 +389,24 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
   }
 
-  _getCurrentTime() {
-    return formatDate(
-        DateTime.now(), [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn, ':', ss]);
+  printLog(String s) {
+    print('${TAG} : ' + s);
   }
 
-  Widget _checkAndPlayVideo() {
-//    _isPlaying
-    return _isInit && _isLocked ? _buildPlayingWidget() : _buildInitingWidget();
+  void initStateUnLockVideo() {
+    _controllerLock.initialize().then((value) {
+      setState(() {
+        _isUnLockInit = _controllerUnLock.value.initialized;
+      });
+    });
   }
 
-  _pageUnlock() {
-    return Container(
-      child: Column(children: <Widget>[
-        SizedBox(
-          height: 230.0,
-          width: 328.0,
-          child: _checkAndPlayVideo(),
-        ),
-        SizedBox(
-          child: Container(
-            padding: EdgeInsets.only(
-              left: 20,
-            ),
-            color: const Color(0xFF100F27),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  child: Image(
-                    image: AssetImage('images/home_icon_refresh@3x.png'),
-                    fit: BoxFit.contain,
-                    height: 14,
-                    color: Colors.white,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 5.0),
-                  child: Text(
-                    "刷新时间：${_getCurrentTime()}",
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.only(top: 10),
-                color: const Color(0xFF100F27),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(25))),
-                        color: const Color(0xFF584AA8),
-                      ),
-                      child: FlatButton(
-                          onPressed: () {
-                            print('FlatButton----------isLock: ' +
-                                _isLocked.toString());
-                            _isLocked
-                                ? _controllerLock.play()
-                                : _controllerUnLock.play();
-                          },
-                          child: Text(
-                            '                 解锁                 ',
-                            style: TextStyle(color: Colors.white, fontSize: 25),
-                          )),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        )
-      ]),
-    );
+  FutureOr actionLockComplt() {
+    _isLocked = false;
+    printLog('我完了');
   }
-
-  _pageCarControl() {
-    return Container(
-      child: Column(children: <Widget>[
-        SizedBox(
-          height: 230.0,
-          width: 328.0,
-          child: Text(
-            "PAGE2",
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ]),
-    );
-  }
-
-  _pageCarMode() {
-    return Container(
-      child: Column(children: <Widget>[
-        SizedBox(
-          height: 230.0,
-          width: 328.0,
-          child: Text(
-            "PAGE3",
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ]),
-    );
+  FutureOr actionUnLockComplt() {
+    _isLocked = true;
+    printLog('我完了');
   }
 }
