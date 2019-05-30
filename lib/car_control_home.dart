@@ -75,8 +75,8 @@ class _VideoState extends State<CarControlHomeActivity> {
   ///创建播放中的视频界面
   Widget _buildPlayingWidget() {
     return AspectRatio(
-            aspectRatio: 328 / 230,
-            child: GestureDetector(child: VideoPlayer(_controllerLock)));
+        aspectRatio: 328 / 230,
+        child: GestureDetector(child: VideoPlayer(_controllerLock)));
   }
 
   ///视频正在加载的界面
@@ -86,7 +86,7 @@ class _VideoState extends State<CarControlHomeActivity> {
       aspectRatio: 328 / 230,
       child: Stack(
         children: <Widget>[
-              VideoPlayer(_controllerLock),
+          VideoPlayer(_controllerLock),
         ],
       ),
     );
@@ -114,7 +114,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               printLog('FlatButton----------isLock: ' + _isLocked.toString());
               _controllerLock.play().whenComplete(actionUnLockComplt);
             },
-            child:_myButton('上锁'));
+            child: _myButton('上锁'));
   }
 
   Widget _myButton(String msg) {
@@ -249,68 +249,22 @@ class _VideoState extends State<CarControlHomeActivity> {
               child: Container(
                 decoration: BoxDecoration(color: const Color(0xFF100F27)),
                 margin: EdgeInsets.only(top: 0.0),
-/*
-                child: PageView(
-                  children: <Widget>[
-                    _pageUnlock(),
-                    _pageCarControl(),
-                    _pageCarMode(),
-                  ],
-                ),
-*/
-              child: Swiper(
-                itemBuilder: _swiperBuilder,
-                itemCount: 3,
-                pagination: new SwiperPagination(
-                    builder: DotSwiperPaginationBuilder(
-                      color: Colors.grey,
-                      activeColor: Colors.white,
-                      size: 7.0,
-                      activeSize: 9.0,
-                    )),
-                scrollDirection: Axis.horizontal,
-                autoplay: false,
-                onTap: (index) => print('点击了第$index个'),
-
-                  ),
-              ),
-            ),
-/*
-            Expanded(
-              flex: 10,
-              child: Container(
-                decoration: BoxDecoration(color: const Color(0xFF100F27)),
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      '.',
-                      style: TextStyle(
-                        fontSize: 50,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
-                    Text(
-                      '.',
-                      style: TextStyle(
-                        fontSize: 50,
-                        color: const Color(0x20FFFFFF),
-                      ),
-                    ),
-                    Text(
-                      '.',
-                      style: TextStyle(
-                        fontSize: 50,
-                        color: const Color(0x20FFFFFF),
-                      ),
-                    ),
-                  ],
+                child: Swiper(
+                  itemBuilder: _swiperBuilder,
+                  itemCount: 3,
+                  pagination: new SwiperPagination(
+                      builder: DotSwiperPaginationBuilder(
+                    color: Colors.grey,
+                    activeColor: Colors.white,
+                    size: 7.0,
+                    activeSize: 9.0,
+                  )),
+                  scrollDirection: Axis.horizontal,
+                  autoplay: false,
+                  onTap: (index) => print('点击了第$index个'),
                 ),
               ),
             ),
-*/
             Expanded(
               flex: 28,
               child: Container(
@@ -424,6 +378,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     _isLocked = false;
     printLog('我完了');
   }
+
   FutureOr actionUnLockComplt() {
     _isLocked = true;
     printLog('我完了');
