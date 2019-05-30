@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:async';
-
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:video_player/video_player.dart';
 
 ///
@@ -249,6 +249,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               child: Container(
                 decoration: BoxDecoration(color: const Color(0xFF100F27)),
                 margin: EdgeInsets.only(top: 0.0),
+/*
                 child: PageView(
                   children: <Widget>[
                     _pageUnlock(),
@@ -256,8 +257,25 @@ class _VideoState extends State<CarControlHomeActivity> {
                     _pageCarMode(),
                   ],
                 ),
+*/
+              child: Swiper(
+                itemBuilder: _swiperBuilder,
+                itemCount: 3,
+                pagination: new SwiperPagination(
+                    builder: DotSwiperPaginationBuilder(
+                      color: Colors.grey,
+                      activeColor: Colors.white,
+                      size: 7.0,
+                      activeSize: 9.0,
+                    )),
+                scrollDirection: Axis.horizontal,
+                autoplay: false,
+                onTap: (index) => print('点击了第$index个'),
+
+                  ),
               ),
             ),
+/*
             Expanded(
               flex: 10,
               child: Container(
@@ -292,6 +310,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                 ),
               ),
             ),
+*/
             Expanded(
               flex: 28,
               child: Container(
@@ -408,5 +427,13 @@ class _VideoState extends State<CarControlHomeActivity> {
   FutureOr actionUnLockComplt() {
     _isLocked = true;
     printLog('我完了');
+  }
+
+  Widget _swiperBuilder(BuildContext context, int index) {
+    List<Widget> list = new List();
+    list.add(_pageUnlock());
+    list.add(_pageCarMode());
+    list.add(_pageCarControl());
+    return _pageUnlock();
   }
 }
