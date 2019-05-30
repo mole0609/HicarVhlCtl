@@ -274,7 +274,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                       margin: EdgeInsets.all(10),
                       child: Container(
                         padding: EdgeInsets.only(
-                            left: 16.0, right: 16.0, top: 10.0, bottom: 48.0),
+                            left: 16.0, right: 16.0, top: 0.0, bottom: 0.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -339,10 +339,12 @@ class _VideoState extends State<CarControlHomeActivity> {
                               ],
                             ),
                             Divider(
-                              height: 2,
+
+                              height: 10,
                               color: Colors.black45,
                             ),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 Text(
                                   '更多加油站 >',
