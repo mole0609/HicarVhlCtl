@@ -3,12 +3,8 @@ import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:video_player/video_player.dart';
+import 'utils/image_util.dart';
 
-///
-/// 当加载好视频之后自动播放,仅提供
-/// 播放功能，不提供暂停等控制事件
-///
 class CarControlHomeActivity extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -19,9 +15,15 @@ class CarControlHomeActivity extends StatefulWidget {
 class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
 
-  VideoPlayerController _firstPageController,_secondPageController,_thirdPageController,
-      _controllerLock, _controllerUnLock,_controllerHeating;
-  StreamController<VideoPlayerController> _streamLock, _streamunLock,_streamunHeating;
+  VideoPlayerController _firstPageController,
+      _secondPageController,
+      _thirdPageController,
+      _controllerLock,
+      _controllerUnLock,
+      _controllerHeating;
+  StreamController<VideoPlayerController> _streamLock,
+      _streamunLock,
+      _streamunHeating;
 
   bool _isInit = false;
   bool _isLocked = true;
@@ -44,7 +46,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     _firstPageController = _controllerLock;
     /*---------------page1 end----------------*/
 
-
     /*---------------page2 begin--------------*/
     _controllerHeating = VideoPlayerController.asset(
       'assets/videos/page_2/ori_heating.mp4',
@@ -53,7 +54,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     _controllerHeating.setVolume(0.0);
     _secondPageController = _controllerHeating;
     /*---------------page2 end----------------*/
-
   }
 
   @override
@@ -95,14 +95,13 @@ class _VideoState extends State<CarControlHomeActivity> {
     super.dispose();
   }
 
-
   void onDataLock(VideoPlayerController data) {
     setState(() {
       _firstPageController = data;
     });
     _firstPageController.initialize();
     _firstPageController.play();
-    print(_isLocked?' _controllerLock ':'_controllerUnLock'+'$data');
+    print(_isLocked ? ' _controllerLock ' : '_controllerUnLock' + '$data');
     _isLocked = !_isLocked;
   }
 
@@ -125,8 +124,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     _isLocked = true;
     print('_controllerHeating $data');
   }
-
-
 
   void onDone() {
     print('onDone');
@@ -160,7 +157,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   Widget _checkAndPlayVideo(VideoPlayerController controller) {
-    printLog('_checkAndPlayVideo---------_isInit: '+_isInit.toString());
+    printLog('_checkAndPlayVideo---------_isInit: ' + _isInit.toString());
     return _isInit
         ? _buildPlayingWidget(controller)
         : _buildInitingWidget(controller);
@@ -205,13 +202,17 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   Future<VideoPlayerController> fetchLockData() async {
-    await Future.delayed(Duration(seconds: 1,));
+    await Future.delayed(Duration(
+      seconds: 1,
+    ));
     print('fetchData-----------_isLocked: ' + _isLocked.toString());
     return _isLocked ? _controllerLock : _controllerUnLock;
   }
 
   Future<VideoPlayerController> fetchHeatingData() async {
-    await Future.delayed(Duration(seconds: 1,));
+    await Future.delayed(Duration(
+      seconds: 1,
+    ));
     printLog('fetchHeatingData-----------');
     return _controllerHeating;
   }
@@ -271,7 +272,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                       decoration: ShapeDecoration(
                         shape: RoundedRectangleBorder(
                             borderRadius:
-                            BorderRadius.all(Radius.circular(25))),
+                                BorderRadius.all(Radius.circular(25))),
                         color: const Color(0xFF584AA8),
                       ),
                       child: _myFlatButton(_isLocked),
@@ -328,7 +329,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           height: 129,
           width: 340,
           child: Container(
-//            color: const Color(0xFF999999),
+            color: const Color(0xFF999999),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -336,34 +337,59 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   width: 270,
-                  color: const Color(0xFF100F27),
+                  color: const Color(0xFF199F27),
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
-                      Container(
-                        child: IconButton(
-                          padding: EdgeInsets.all(10),
-                            iconSize: 55,
-                            icon: ImageIcon(
-                              AssetImage(
-                                'assets/images/open_bt_no_selection@3x.png',
-                              ),
-                              color: Colors.white,
-                            ),
-                            onPressed: _addHeatingToStream),
+                      Stack(
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(left: 8.5, top: 36),
+                              child: ImagesAnimation(
+                                durationSeconds: 1,
+                                w: 57,
+                                h: 57,
+                                entry: ImagesAnimationEntry(0, 26,
+                                    'assets/images/circles/圆圈点亮1_000%s.png'),
+                              )),
+                          Center(
+                            child: IconButton(
+                                padding: EdgeInsets.all(10),
+                                iconSize: 55,
+                                icon: ImageIcon(
+                                  AssetImage(
+                                    'assets/images/open_bt_no_selection@3x.png',
+                                  ),
+                                  color: Colors.white,
+                                ),
+                                onPressed: _addHeatingToStream),
+                          ),
+                        ],
                       ),
-                      Container(
-                        child: IconButton(
-                            iconSize: 55,
-                            icon: ImageIcon(
-                              AssetImage(
-                                'assets/images/heat_bt_no_selection@2x.png',
+                      Stack(
+                        children: <Widget>[
+                          IconButton(
+                              padding: EdgeInsets.all(10),
+                              iconSize: 55,
+                              icon: ImageIcon(
+                                AssetImage(
+                                  'assets/images/heat_bt_no_selection@3x.png',
+                                ),
+                                color: Colors.white,
                               ),
-                              color: Colors.white,
-                            ),
-                            onPressed: _addHeatingToStream),
+                              onPressed: _addHeatingToStream),
+                          Padding(
+                              padding: EdgeInsets.only(left: 8.5, top: 36),
+                              child: ImagesAnimation(
+                                durationSeconds: 1,
+                                w: 57,
+                                h: 57,
+                                entry: ImagesAnimationEntry(0, 26,
+                                    'assets/images/circles/圆圈点亮1_000%s.png'),
+                              )),
+                        ],
                       ),
                       Container(
                         child: IconButton(
@@ -383,7 +409,6 @@ class _VideoState extends State<CarControlHomeActivity> {
             ),
           ),
         )
-
       ]),
     );
   }
@@ -410,14 +435,29 @@ class _VideoState extends State<CarControlHomeActivity> {
         backgroundColor: const Color(0xFF100F27),
         title: const Text('HUAWEI Car'),
         centerTitle: true,
-        leading: IconButton(
-            icon: ImageIcon(
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 15),
+            child: ImageIcon(
               AssetImage(
-                'assets/images/home_icon_personal.png',
+                'assets/images/scan.png',
               ),
               color: Colors.white,
             ),
-            onPressed: null),
+          )
+        ],
+        leading: Padding(
+          padding: const EdgeInsets.all(0.0),
+          child: IconButton(
+              iconSize: 35,
+              icon: ImageIcon(
+                AssetImage(
+                  'assets/images/home_icon_personal.png',
+                ),
+                color: Colors.white,
+              ),
+              onPressed: null),
+        ),
         elevation: 0.0,
       ),
       body: Container(
@@ -520,12 +560,12 @@ class _VideoState extends State<CarControlHomeActivity> {
                               ],
                             ),
                             Divider(
-
                               height: 10,
                               color: Colors.black45,
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 Text(
                                   '更多加油站 >',
@@ -551,8 +591,8 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   Widget _swiperBuilder(BuildContext context, int index) {
     List<Widget> pageList = new List();
-    pageList.add(_pageUnlock());
     pageList.add(_pageCarControl());
+    pageList.add(_pageUnlock());
     pageList.add(_pageCarMode());
     return pageList[index];
   }
