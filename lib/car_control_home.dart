@@ -19,8 +19,9 @@ class CarControlHomeActivity extends StatefulWidget {
 class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
 
-  VideoPlayerController _defaultController, _controllerLock, _controllerUnLock;
-  StreamController<VideoPlayerController> _streamLock, _streamunLock;
+  VideoPlayerController _firstPageController,_secondPageController,_thirdPageController,
+      _controllerLock, _controllerUnLock,_controllerHeating;
+  StreamController<VideoPlayerController> _streamLock, _streamunLock,_streamunHeating;
 
   bool _isInit = false;
   bool _isLocked = true;
@@ -28,18 +29,31 @@ class _VideoState extends State<CarControlHomeActivity> {
   StreamSink _sinkDemo;
 
   _VideoState() {
+    /*---------------page1 begin--------------*/
     _controllerLock = VideoPlayerController.asset(
-      'assets/videos/lock_unlock.mp4',
+      'assets/videos/page_1/lock_unlock.mp4',
     );
     _controllerLock.setLooping(false);
     _controllerLock.setVolume(0.0);
 
     _controllerUnLock = VideoPlayerController.asset(
-      'assets/videos/unlock_lock.mp4',
+      'assets/videos/page_1/unlock_lock.mp4',
     );
     _controllerUnLock.setLooping(false);
     _controllerUnLock.setVolume(0.0);
-    _defaultController = _controllerLock;
+    _firstPageController = _controllerLock;
+    /*---------------page1 end----------------*/
+
+
+    /*---------------page2 begin--------------*/
+    _controllerHeating = VideoPlayerController.asset(
+      'assets/videos/page_2/ori_heating.mp4',
+    );
+    _controllerHeating.setLooping(false);
+    _controllerHeating.setVolume(0.0);
+    _secondPageController = _controllerHeating;
+    /*---------------page2 end----------------*/
+
   }
 
   @override
@@ -47,9 +61,12 @@ class _VideoState extends State<CarControlHomeActivity> {
     super.initState();
     _streamLock = StreamController.broadcast();
     _streamunLock = StreamController.broadcast();
+    _streamunHeating = StreamController.broadcast();
+
     _streamLock.stream.listen(onDataLock, onDone: onDone);
     _streamunLock.stream.listen(onDataUnLock, onDone: onDone);
-    _sinkDemo = _streamLock.sink;
+    _streamunHeating.stream.listen(onDataHeating, onDone: onDone);
+//    _sinkDemo = _streamLock.sink;
 
     _controllerLock.initialize().then((value) {
       setState(() {
@@ -62,35 +79,54 @@ class _VideoState extends State<CarControlHomeActivity> {
         _isInit = _controllerUnLock.value.initialized;
       });
     });
+
+    _controllerHeating.initialize().then((value) {
+      setState(() {
+        _isInit = _controllerHeating.value.initialized;
+      });
+    });
   }
 
   @override
   void dispose() {
     _controllerLock.dispose();
     _controllerUnLock.dispose();
+    _controllerHeating.dispose();
     super.dispose();
   }
 
 
   void onDataLock(VideoPlayerController data) {
     setState(() {
-      _defaultController = data;
+      _firstPageController = data;
     });
-    _defaultController.initialize();
-    _defaultController.play();
-    _isLocked = false;
-    print('_controllerLock $data');
+    _firstPageController.initialize();
+    _firstPageController.play();
+    print(_isLocked?' _controllerLock ':'_controllerUnLock'+'$data');
+    _isLocked = !_isLocked;
   }
 
   void onDataUnLock(VideoPlayerController data) {
     setState(() {
-      _defaultController = data;
+      _firstPageController = data;
     });
-    _defaultController.initialize();
-    _defaultController.play();
+    _firstPageController.initialize();
+    _firstPageController.play();
     _isLocked = true;
     print('_controllerUnLock $data');
   }
+
+  void onDataHeating(VideoPlayerController data) {
+    setState(() {
+      _secondPageController = data;
+    });
+    _secondPageController.initialize();
+    _secondPageController.play();
+    _isLocked = true;
+    print('_controllerHeating $data');
+  }
+
+
 
   void onDone() {
     print('onDone');
@@ -124,6 +160,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   Widget _checkAndPlayVideo(VideoPlayerController controller) {
+    printLog('_checkAndPlayVideo---------_isInit: '+_isInit.toString());
     return _isInit
         ? _buildPlayingWidget(controller)
         : _buildInitingWidget(controller);
@@ -136,16 +173,16 @@ class _VideoState extends State<CarControlHomeActivity> {
               printLog('FlatButton----------isLock: ' + _isLocked.toString());
               _addLockToStream();
             },
-            child: _myButton('解锁'))
+            child: _myButtonText('解锁'))
         : FlatButton(
             onPressed: () {
               printLog('FlatButton----------isLock: ' + _isLocked.toString());
-              _addunLockToStream();
+              _addUnLockToStream();
             },
-            child: _myButton('上锁'));
+            child: _myButtonText('上锁'));
   }
 
-  Widget _myButton(String msg) {
+  Widget _myButtonText(String msg) {
     return Text(
       '                 $msg                 ',
       style: TextStyle(color: Colors.white, fontSize: 25),
@@ -153,20 +190,31 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   void _addLockToStream() async {
-    VideoPlayerController data = await fetchData();
+    VideoPlayerController data = await fetchLockData();
     _streamLock.add(data);
   }
 
-  void _addunLockToStream() async {
-    VideoPlayerController data = await fetchData();
+  void _addUnLockToStream() async {
+    VideoPlayerController data = await fetchLockData();
     _streamunLock.add(data);
   }
-  Future<VideoPlayerController> fetchData() async {
+
+  void _addHeatingToStream() async {
+    VideoPlayerController data = await fetchHeatingData();
+    _streamunHeating.add(data);
+  }
+
+  Future<VideoPlayerController> fetchLockData() async {
     await Future.delayed(Duration(seconds: 1,));
     print('fetchData-----------_isLocked: ' + _isLocked.toString());
     return _isLocked ? _controllerLock : _controllerUnLock;
   }
 
+  Future<VideoPlayerController> fetchHeatingData() async {
+    await Future.delayed(Duration(seconds: 1,));
+    printLog('fetchHeatingData-----------');
+    return _controllerHeating;
+  }
 
   _pageUnlock() {
     return Container(
@@ -174,7 +222,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: _checkAndPlayVideo(_defaultController),
+          child: _checkAndPlayVideo(_firstPageController),
         ),
         SizedBox(
           child: Container(
@@ -223,7 +271,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                       decoration: ShapeDecoration(
                         shape: RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(25))),
+                            BorderRadius.all(Radius.circular(25))),
                         color: const Color(0xFF584AA8),
                       ),
                       child: _myFlatButton(_isLocked),
@@ -244,11 +292,98 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: Text(
-            "PAGE2",
-            style: TextStyle(color: Colors.white),
+          child: _checkAndPlayVideo(_secondPageController),
+        ),
+        SizedBox(
+          child: Container(
+            padding: EdgeInsets.only(
+              left: 20,
+            ),
+            color: const Color(0xFF100F27),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  child: Image(
+                    image: AssetImage('assets/images/home_icon_refresh@3x.png'),
+                    fit: BoxFit.contain,
+                    height: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 5.0),
+                  child: Text(
+                    "刷新时间：${_getCurrentTime()}",
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+        SizedBox(
+          height: 129,
+          width: 340,
+          child: Container(
+//            color: const Color(0xFF999999),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  width: 270,
+                  color: const Color(0xFF100F27),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Container(
+                        child: IconButton(
+                          padding: EdgeInsets.all(10),
+                            iconSize: 55,
+                            icon: ImageIcon(
+                              AssetImage(
+                                'assets/images/open_bt_no_selection@3x.png',
+                              ),
+                              color: Colors.white,
+                            ),
+                            onPressed: _addHeatingToStream),
+                      ),
+                      Container(
+                        child: IconButton(
+                            iconSize: 55,
+                            icon: ImageIcon(
+                              AssetImage(
+                                'assets/images/heat_bt_no_selection@2x.png',
+                              ),
+                              color: Colors.white,
+                            ),
+                            onPressed: _addHeatingToStream),
+                      ),
+                      Container(
+                        child: IconButton(
+                            iconSize: 55,
+                            icon: ImageIcon(
+                              AssetImage(
+                                'assets/images/cold_bt_no_selection@3x.png',
+                              ),
+                              color: Colors.white,
+                            ),
+                            onPressed: _addHeatingToStream),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+
       ]),
     );
   }
@@ -286,6 +421,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         elevation: 0.0,
       ),
       body: Container(
+        padding: EdgeInsets.only(top: 50),
         decoration: BoxDecoration(color: const Color(0xFF100F27)),
         child: Column(
           children: <Widget>[
@@ -413,22 +549,11 @@ class _VideoState extends State<CarControlHomeActivity> {
     print('$TAG : ' + s);
   }
 
-
-  FutureOr actionLockComplt() {
-    _isLocked = false;
-    printLog('我完了');
-  }
-
-  FutureOr actionUnLockComplt() {
-    _isLocked = true;
-    printLog('我完了');
-  }
-
   Widget _swiperBuilder(BuildContext context, int index) {
     List<Widget> pageList = new List();
     pageList.add(_pageUnlock());
-    pageList.add(_pageCarMode());
     pageList.add(_pageCarControl());
+    pageList.add(_pageCarMode());
     return pageList[index];
   }
 }
