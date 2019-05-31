@@ -19,50 +19,49 @@ class CarControlHomeActivity extends StatefulWidget {
 class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
 
-  VideoPlayerController _controllerLock, _controllerUnLock;
+  VideoPlayerController _defaultController, _controllerLock, _controllerUnLock;
+  StreamController<VideoPlayerController> _streamLock, _streamunLock;
+
   bool _isInit = false;
-  bool _isUnLockInit = false;
   bool _isLocked = true;
   int _index = 1;
-  Completer<void> _creatingCompleter;
+  StreamSink _sinkDemo;
 
   _VideoState() {
     _controllerLock = VideoPlayerController.asset(
-      'videos/lock_unlock.mp4',
-    );
-    _controllerUnLock = VideoPlayerController.asset(
-      'videos/unlock_lock.mp4',
+      'assets/videos/lock_unlock.mp4',
     );
     _controllerLock.setLooping(false);
-    _controllerUnLock.setLooping(false);
     _controllerLock.setVolume(0.0);
-    _controllerUnLock.setVolume(0.0);
 
-    ///随着播放会一直调用
-    _controllerLock.addListener(() {
-      final bool isPlaying = _controllerLock.value.isPlaying;
-//      _controllerLock.value.,
-      setState(() {
-//        _isLocked = !isPlaying;
-      });
-    });
+    _controllerUnLock = VideoPlayerController.asset(
+      'assets/videos/unlock_lock.mp4',
+    );
+    _controllerUnLock.setLooping(false);
+    _controllerUnLock.setVolume(0.0);
+    _defaultController = _controllerLock;
   }
 
   @override
   void initState() {
     super.initState();
+    _streamLock = StreamController.broadcast();
+    _streamunLock = StreamController.broadcast();
+    _streamLock.stream.listen(onDataLock, onDone: onDone);
+    _streamunLock.stream.listen(onDataUnLock, onDone: onDone);
+    _sinkDemo = _streamLock.sink;
+
     _controllerLock.initialize().then((value) {
       setState(() {
         _isInit = _controllerLock.value.initialized;
       });
     });
-    printLog('initState--------------_isInit: ' + _isInit.toString());
+
     _controllerUnLock.initialize().then((value) {
       setState(() {
-        _isInit &= _controllerUnLock.value.initialized;
+        _isInit = _controllerUnLock.value.initialized;
       });
     });
-    printLog('initState--------------_isInit: ' + _isInit.toString());
   }
 
   @override
@@ -72,22 +71,49 @@ class _VideoState extends State<CarControlHomeActivity> {
     super.dispose();
   }
 
+
+  void onDataLock(VideoPlayerController data) {
+    setState(() {
+      _defaultController = data;
+    });
+    _defaultController.initialize();
+    _defaultController.play();
+    _isLocked = false;
+    print('_controllerLock $data');
+  }
+
+  void onDataUnLock(VideoPlayerController data) {
+    setState(() {
+      _defaultController = data;
+    });
+    _defaultController.initialize();
+    _defaultController.play();
+    _isLocked = true;
+    print('_controllerUnLock $data');
+  }
+
+  void onDone() {
+    print('onDone');
+  }
+
   ///创建播放中的视频界面
-  Widget _buildPlayingWidget() {
+  Widget _buildPlayingWidget(VideoPlayerController controller) {
     return AspectRatio(
-        aspectRatio: 328 / 230,
-        child: GestureDetector(child: VideoPlayer(_controllerLock)));
+        aspectRatio: 3 / 2,
+        child: GestureDetector(
+          child: VideoPlayer(controller),
+        ));
   }
 
   ///视频正在加载的界面
-  Widget _buildInitingWidget() {
-    printLog('_buildInitingWidget--------------_isInit: ' + _isInit.toString());
+  Widget _buildInitingWidget(VideoPlayerController controller) {
     return AspectRatio(
-      aspectRatio: 328 / 230,
+      aspectRatio: 3 / 2,
       child: Stack(
         children: <Widget>[
-          VideoPlayer(_controllerLock),
+          VideoPlayer(controller),
         ],
+        fit: StackFit.expand,
       ),
     );
   }
@@ -97,8 +123,10 @@ class _VideoState extends State<CarControlHomeActivity> {
         DateTime.now(), [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn, ':', ss]);
   }
 
-  Widget _checkAndPlayVideo() {
-    return _isInit ? _buildPlayingWidget() : _buildInitingWidget();
+  Widget _checkAndPlayVideo(VideoPlayerController controller) {
+    return _isInit
+        ? _buildPlayingWidget(controller)
+        : _buildInitingWidget(controller);
   }
 
   Widget _myFlatButton(bool isLocked) {
@@ -106,30 +134,47 @@ class _VideoState extends State<CarControlHomeActivity> {
         ? FlatButton(
             onPressed: () {
               printLog('FlatButton----------isLock: ' + _isLocked.toString());
-              _controllerLock.play().whenComplete(actionLockComplt);
+              _addLockToStream();
             },
             child: _myButton('解锁'))
         : FlatButton(
             onPressed: () {
               printLog('FlatButton----------isLock: ' + _isLocked.toString());
-              _controllerLock.play().whenComplete(actionUnLockComplt);
+              _addunLockToStream();
             },
             child: _myButton('上锁'));
   }
 
   Widget _myButton(String msg) {
     return Text(
-      '                 ${msg}                 ',
+      '                 $msg                 ',
       style: TextStyle(color: Colors.white, fontSize: 25),
     );
   }
 
+  void _addLockToStream() async {
+    VideoPlayerController data = await fetchData();
+    _streamLock.add(data);
+  }
+
+  void _addunLockToStream() async {
+    VideoPlayerController data = await fetchData();
+    _streamunLock.add(data);
+  }
+  Future<VideoPlayerController> fetchData() async {
+    await Future.delayed(Duration(seconds: 1,));
+    print('fetchData-----------_isLocked: ' + _isLocked.toString());
+    return _isLocked ? _controllerLock : _controllerUnLock;
+  }
+
+
   _pageUnlock() {
     return Container(
       child: Column(children: <Widget>[
-        Offstage(
-          offstage: false,
-          child: _checkAndPlayVideo(),
+        SizedBox(
+          height: 230.0,
+          width: 328.0,
+          child: _checkAndPlayVideo(_defaultController),
         ),
         SizedBox(
           child: Container(
@@ -144,7 +189,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('images/home_icon_refresh@3x.png'),
+                    image: AssetImage('assets/images/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
@@ -162,7 +207,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           ),
         ),
         SizedBox(
-          height: 80,
+          height: 120,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -233,7 +278,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         leading: IconButton(
             icon: ImageIcon(
               AssetImage(
-                'images/home_icon_personal.png',
+                'assets/images/home_icon_personal.png',
               ),
               color: Colors.white,
             ),
@@ -291,7 +336,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                   children: <Widget>[
                                     ImageIcon(
                                       AssetImage(
-                                        'images/home_icon_gs_order@3x.png',
+                                        'assets/images/home_icon_gs_order@3x.png',
                                       ),
                                       color: Colors.white,
                                       size: 20,
@@ -365,16 +410,9 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   printLog(String s) {
-    print('${TAG} : ' + s);
+    print('$TAG : ' + s);
   }
 
-  void initStateUnLockVideo() {
-    _controllerLock.initialize().then((value) {
-      setState(() {
-        _isUnLockInit = _controllerUnLock.value.initialized;
-      });
-    });
-  }
 
   FutureOr actionLockComplt() {
     _isLocked = false;
@@ -387,10 +425,10 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   Widget _swiperBuilder(BuildContext context, int index) {
-    List<Widget> list = new List();
-    list.add(_pageUnlock());
-    list.add(_pageCarMode());
-    list.add(_pageCarControl());
-    return _pageUnlock();
+    List<Widget> pageList = new List();
+    pageList.add(_pageUnlock());
+    pageList.add(_pageCarMode());
+    pageList.add(_pageCarControl());
+    return pageList[index];
   }
 }
