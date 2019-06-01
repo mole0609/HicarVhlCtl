@@ -4,7 +4,7 @@ import 'package:sprintf/sprintf.dart';
 class ImagesAnimation extends StatefulWidget {
   final double w;
   final double h;
-  ImagesAnimationEntry entry;
+  final ImagesAnimationEntry entry;
   final int durationSeconds;
   ImagesAnimation(
       {Key key,

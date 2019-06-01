@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_video_demo/utils/animation_begin.dart';
 import 'package:flutter_app_video_demo/utils/animation_end.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
+import 'package:flutter_app_video_demo/utils/video_begin.dart';
+import 'package:flutter_app_video_demo/utils/video_end.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -33,8 +35,8 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   StreamController<ImagesAnimation> _streamCircle;
 
-  StreamController<int> _streamControllerHeat,_vidoecom,
-
+  StreamController<int> _streamControllerLock,
+      _streamControllerHeat,
       _streamControllerWarm,
       _streamControllerCold;
 
@@ -109,8 +111,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     _streamControllerHeat = StreamController.broadcast();
     _streamControllerWarm = StreamController.broadcast();
     _streamControllerCold = StreamController.broadcast();
-    _vidoecom = StreamController.broadcast();
-
+    _streamControllerLock = StreamController.broadcast();
 
     _streamCircle.stream.listen(onDataCircle, onDone: onDone);
     _streamLock.stream.listen(onDataLock, onDone: onDone);
@@ -152,7 +153,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     _controllerHeating.dispose();
     _controllerUnHeating.dispose();
     _streamControllerHeat.close();
-    _vidoecom.close();
+    _streamControllerLock.close();
     _streamControllerWarm.close();
     _streamControllerCold.close();
     super.dispose();
@@ -316,16 +317,18 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: /*_checkAndPlayVideo(_firstPageController)*/StreamBuilder<Object>(
+          child: _checkAndPlayVideo(_firstPageController)
+/*          StreamBuilder<Object>(
               stream: _vidoecom.stream,
               initialData: 0,
               builder: (context, snapshot) {
-                if (!Look) {
-                  return new CircleOff();
+                if (!_isLockedBT) {
+                  return new VideoOff();
                 } else {
-                  return new CircleOn();
+                  return new VideoOff();
                 }
-              }),
+              })*/
+              ,
         ),
         SizedBox(
           child: Container(
@@ -377,11 +380,24 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 BorderRadius.all(Radius.circular(25))),
                         color: const Color(0xFF584AA8),
                       ),
-                      child: /*_myFlatButton(_isLocked)*/FlatButton(
-                          onPressed: () {
-                            _onLockClickLister();
-                          },
-                          child: _myButtonText('解锁')),
+                      child: StreamBuilder<Object>(
+                          stream: _streamControllerLock.stream,
+                          initialData: 0,
+                          builder: (context, snapshot) {
+                            if (_isLockedBT) {
+                              return FlatButton(
+                                  onPressed: () {
+                                    _onLockClickLister();
+                                  },
+                                  child: _myButtonText('解锁'));
+                            } else {
+                              return FlatButton(
+                                  onPressed: () {
+                                    _onLockClickLister();
+                                  },
+                                  child: _myButtonText('上锁'));
+                            }
+                          }),
                     ),
                   ],
                 ),
@@ -393,16 +409,13 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
   }
 
-  bool Look = false;
+  bool _isLockedBT = true;
+
   void _onLockClickLister() {
-//    isHeated = !isHeated;
-//    _addHeatingToStream();
-    Look= !Look;
-    _vidoecom.sink.add(++count);
+    _addLockToStream();
+    _isLockedBT = !_isLockedBT;
+    _streamControllerLock.sink.add(++count);
   }
-
-
-
 
   _pageCarControl() {
     return Container(
@@ -498,8 +511,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 } else {
                                   return new CircleOn();
                                 }
-                              }
-                          ),
+                              }),
                           Center(
                             child: IconButton(
                               padding: EdgeInsets.all(10),
@@ -518,16 +530,15 @@ class _VideoState extends State<CarControlHomeActivity> {
                       Stack(
                         children: <Widget>[
                           StreamBuilder<Object>(
-                            stream: _streamControllerCold.stream,
-                            initialData: 0,
-                            builder: (context, snapshot) {
+                              stream: _streamControllerCold.stream,
+                              initialData: 0,
+                              builder: (context, snapshot) {
                                 if (!isColdMode) {
                                   return new CircleOff();
                                 } else {
                                   return new CircleOn();
                                 }
-                            }
-                          ),
+                              }),
                           Center(
                             child: IconButton(
                               padding: EdgeInsets.all(10),
@@ -760,6 +771,4 @@ class _VideoState extends State<CarControlHomeActivity> {
     pageList.add(_pageCarMode());
     return pageList[index];
   }
-
 }
-
