@@ -15,9 +15,10 @@ class CarControlHomeActivity extends StatefulWidget {
 class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
   int count = 0;
-  final StreamController<int> _streamControllerHeat = StreamController<int>();
-  final StreamController<int> _streamControllerWarm = StreamController<int>();
-  final StreamController<int> _streamControllerCold = StreamController<int>();
+
+//  final StreamController<int> _streamControllerHeat = StreamController<int>();
+//  final StreamController<int> _streamControllerWarm = StreamController<int>();
+//  final StreamController<int> _streamControllerCold = StreamController<int>();
 
   VideoPlayerController _firstPageController,
       _secondPageController,
@@ -33,6 +34,10 @@ class _VideoState extends State<CarControlHomeActivity> {
       _streamUnHeating;
 
   StreamController<ImagesAnimation> _streamCircle;
+
+  StreamController<int> _streamControllerHeat,
+      _streamControllerWarm,
+      _streamControllerCold;
 
   StreamSubscription _circleSubscription;
 
@@ -94,11 +99,18 @@ class _VideoState extends State<CarControlHomeActivity> {
   @override
   void initState() {
     super.initState();
+    printLog('initState-----------------');
+
     _streamCircle = StreamController.broadcast();
     _streamLock = StreamController.broadcast();
     _streamUnLock = StreamController.broadcast();
     _streamHeating = StreamController.broadcast();
     _streamUnHeating = StreamController.broadcast();
+
+    _streamControllerHeat = StreamController.broadcast();
+    _streamControllerWarm = StreamController.broadcast();
+    _streamControllerCold = StreamController.broadcast();
+
 
     _streamCircle.stream.listen(onDataCircle, onDone: onDone);
     _streamLock.stream.listen(onDataLock, onDone: onDone);
@@ -134,6 +146,7 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   @override
   void dispose() {
+    printLog('dispose-----------------');
     _controllerLock.dispose();
     _controllerUnLock.dispose();
     _controllerHeating.dispose();
@@ -433,8 +446,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 } else {
                                   return new CircleOn();
                                 }
-                              }
-                          ),
+                              }),
                           Center(
                             child: IconButton(
                               padding: EdgeInsets.all(10),
@@ -450,7 +462,6 @@ class _VideoState extends State<CarControlHomeActivity> {
                           ),
                         ],
                       ),
-/*
                       Stack(
                         children: <Widget>[
                           StreamBuilder<Object>(
@@ -507,7 +518,6 @@ class _VideoState extends State<CarControlHomeActivity> {
                           ),
                         ],
                       ),
-*/
                     ],
                   ),
                 ),
@@ -525,15 +535,17 @@ class _VideoState extends State<CarControlHomeActivity> {
   int durationSeconds = 0;
 
   void onHeatClickListener() {
-      isHeated = !isHeated;
+    isHeated = !isHeated;
     _addHeatingToStream();
     _streamControllerHeat.sink.add(++count);
   }
+
   void onWarmClickListener() {
     isWarmMode = !isWarmMode;
 //    _addHeatingToStream();
     _streamControllerWarm.sink.add(++count);
   }
+
   void onColdClickListener() {
     isColdMode = !isColdMode;
 //    _addHeatingToStream();
@@ -737,9 +749,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     pageList.add(_pageCarMode());
     return pageList[index];
   }
-
 }
-
 
 class CircleOn extends StatefulWidget {
   _CircleOnState createState() => new _CircleOnState();
@@ -756,7 +766,8 @@ class AnimatedShow extends AnimatedWidget {
         padding: EdgeInsets.all(7),
         child: new ImagesAnimation(
           durationSeconds: 1,
-          entry: ImagesAnimationEntry(0,26,'assets/images/circles/圆圈点亮1_000%s.png'),
+          entry: ImagesAnimationEntry(
+              0, 26, 'assets/images/circles/圆圈点亮1_000%s.png'),
           h: 60,
           w: 60,
         ),
@@ -765,7 +776,8 @@ class AnimatedShow extends AnimatedWidget {
   }
 }
 
-class _CircleOnState extends State<CircleOn> with SingleTickerProviderStateMixin {
+class _CircleOnState extends State<CircleOn>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
 
@@ -787,12 +799,12 @@ class _CircleOnState extends State<CircleOn> with SingleTickerProviderStateMixin
   }
 }
 
-
-
 class CircleOff extends StatefulWidget {
   _CircleOffState createState() => new _CircleOffState();
 }
-class _CircleOffState extends State<CircleOff> with SingleTickerProviderStateMixin {
+
+class _CircleOffState extends State<CircleOff>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
 
@@ -821,17 +833,15 @@ class AnimatedDismiss extends AnimatedWidget {
   Widget build(BuildContext context) {
     final Animation<double> animation = listenable;
     return new Center(
-        child: new Container(
-          child: new ImagesAnimation(
-            durationSeconds: 1,
-            entry: ImagesAnimationEntry(0,0,'assets/images/circles/圆圈点亮1_000%s.png'),
-            h: 60,
-            w: 60,
-          ),
+      child: new Container(
+        child: new ImagesAnimation(
+          durationSeconds: 1,
+          entry: ImagesAnimationEntry(
+              0, 0, 'assets/images/circles/圆圈点亮1_000%s.png'),
+          h: 60,
+          w: 60,
+        ),
       ),
     );
   }
 }
-
-
-
