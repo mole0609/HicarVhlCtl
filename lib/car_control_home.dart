@@ -14,21 +14,39 @@ class CarControlHomeActivity extends StatefulWidget {
 
 class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
+  int count = 0;
+  final StreamController<int> _streamControllerHeat = StreamController<int>();
+  final StreamController<int> _streamControllerWarm = StreamController<int>();
+  final StreamController<int> _streamControllerCold = StreamController<int>();
 
   VideoPlayerController _firstPageController,
       _secondPageController,
       _thirdPageController,
       _controllerLock,
       _controllerUnLock,
-      _controllerHeating;
+      _controllerHeating,
+      _controllerUnHeating;
+
   StreamController<VideoPlayerController> _streamLock,
-      _streamunLock,
-      _streamunHeating;
+      _streamUnLock,
+      _streamHeating,
+      _streamUnHeating;
+
+  StreamController<ImagesAnimation> _streamCircle;
+
+  StreamSubscription _circleSubscription;
+
+  ImagesAnimation imagesAnimation;
+  ImagesAnimationEntry imagesAnimationEntry;
 
   bool _isInit = false;
   bool _isLocked = true;
   int _index = 1;
   StreamSink _sinkDemo;
+
+  bool _isHeating = false;
+  bool isWarm = false;
+  bool isCold = false;
 
   _VideoState() {
     /*---------------page1 begin--------------*/
@@ -52,21 +70,43 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
     _controllerHeating.setLooping(false);
     _controllerHeating.setVolume(0.0);
+
+    _controllerUnHeating = VideoPlayerController.asset(
+      'assets/videos/page_2/heating_ori.mp4',
+    );
+    _controllerUnHeating.setLooping(false);
+    _controllerUnHeating.setVolume(0.0);
+
     _secondPageController = _controllerHeating;
     /*---------------page2 end----------------*/
+    imagesAnimation = new ImagesAnimation(
+      durationSeconds: 1,
+      entry: ImagesAnimationEntry(
+        26,
+        26,
+        'assets/images/circles/圆圈点亮1_000%s.png',
+      ),
+      h: 60,
+      w: 60,
+    );
   }
 
   @override
   void initState() {
     super.initState();
+    _streamCircle = StreamController.broadcast();
     _streamLock = StreamController.broadcast();
-    _streamunLock = StreamController.broadcast();
-    _streamunHeating = StreamController.broadcast();
+    _streamUnLock = StreamController.broadcast();
+    _streamHeating = StreamController.broadcast();
+    _streamUnHeating = StreamController.broadcast();
 
+    _streamCircle.stream.listen(onDataCircle, onDone: onDone);
     _streamLock.stream.listen(onDataLock, onDone: onDone);
-    _streamunLock.stream.listen(onDataUnLock, onDone: onDone);
-    _streamunHeating.stream.listen(onDataHeating, onDone: onDone);
-//    _sinkDemo = _streamLock.sink;
+    _streamUnLock.stream.listen(onDataUnLock, onDone: onDone);
+    _streamHeating.stream.listen(onDataHeating, onDone: onDone);
+    _streamUnHeating.stream.listen(onDataUnHeating, onDone: onDone);
+
+    _sinkDemo = _streamCircle.sink;
 
     _controllerLock.initialize().then((value) {
       setState(() {
@@ -85,6 +125,11 @@ class _VideoState extends State<CarControlHomeActivity> {
         _isInit = _controllerHeating.value.initialized;
       });
     });
+    _controllerUnHeating.initialize().then((value) {
+      setState(() {
+        _isInit = _controllerUnHeating.value.initialized;
+      });
+    });
   }
 
   @override
@@ -92,7 +137,17 @@ class _VideoState extends State<CarControlHomeActivity> {
     _controllerLock.dispose();
     _controllerUnLock.dispose();
     _controllerHeating.dispose();
+    _controllerUnHeating.dispose();
+    _streamControllerHeat.close();
+    _streamControllerWarm.close();
+    _streamControllerCold.close();
     super.dispose();
+  }
+
+  void onDataCircle(ImagesAnimation data) {
+    setState(() {
+      imagesAnimation = data;
+    });
   }
 
   void onDataLock(VideoPlayerController data) {
@@ -101,7 +156,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     });
     _firstPageController.initialize();
     _firstPageController.play();
-    print(_isLocked ? ' _controllerLock ' : '_controllerUnLock' + '$data');
     _isLocked = !_isLocked;
   }
 
@@ -111,8 +165,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     });
     _firstPageController.initialize();
     _firstPageController.play();
-    _isLocked = true;
-    print('_controllerUnLock $data');
   }
 
   void onDataHeating(VideoPlayerController data) {
@@ -121,12 +173,18 @@ class _VideoState extends State<CarControlHomeActivity> {
     });
     _secondPageController.initialize();
     _secondPageController.play();
-    _isLocked = true;
-    print('_controllerHeating $data');
+  }
+
+  void onDataUnHeating(VideoPlayerController data) {
+    setState(() {
+      _secondPageController = data;
+    });
+    _secondPageController.initialize();
+    _secondPageController.play();
   }
 
   void onDone() {
-    print('onDone');
+    printLog('onDone');
   }
 
   ///创建播放中的视频界面
@@ -157,7 +215,6 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   Widget _checkAndPlayVideo(VideoPlayerController controller) {
-    printLog('_checkAndPlayVideo---------_isInit: ' + _isInit.toString());
     return _isInit
         ? _buildPlayingWidget(controller)
         : _buildInitingWidget(controller);
@@ -186,6 +243,12 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
   }
 
+  void _addCircleToStream() async {
+    ImagesAnimation data = await fetchCircleData();
+    _streamCircle.add(data);
+//    _sinkDemo.add(data);
+  }
+
   void _addLockToStream() async {
     VideoPlayerController data = await fetchLockData();
     _streamLock.add(data);
@@ -193,19 +256,29 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   void _addUnLockToStream() async {
     VideoPlayerController data = await fetchLockData();
-    _streamunLock.add(data);
+    _streamUnLock.add(data);
   }
 
   void _addHeatingToStream() async {
     VideoPlayerController data = await fetchHeatingData();
-    _streamunHeating.add(data);
+    _streamHeating.add(data);
+    _isHeating = true;
+  }
+
+  void _addUnHeatingToStream() async {
+    VideoPlayerController data = await fetchUnHeatingData();
+    _streamUnHeating.add(data);
+    _isHeating = false;
+  }
+
+  Future<ImagesAnimation> fetchCircleData() async {
+    return imagesAnimation;
   }
 
   Future<VideoPlayerController> fetchLockData() async {
     await Future.delayed(Duration(
       seconds: 1,
     ));
-    print('fetchData-----------_isLocked: ' + _isLocked.toString());
     return _isLocked ? _controllerLock : _controllerUnLock;
   }
 
@@ -213,8 +286,14 @@ class _VideoState extends State<CarControlHomeActivity> {
     await Future.delayed(Duration(
       seconds: 1,
     ));
-    printLog('fetchHeatingData-----------');
     return _controllerHeating;
+  }
+
+  Future<VideoPlayerController> fetchUnHeatingData() async {
+    await Future.delayed(Duration(
+      seconds: 1,
+    ));
+    return _controllerUnHeating;
   }
 
   _pageUnlock() {
@@ -259,7 +338,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           height: 120,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
                 padding: EdgeInsets.only(top: 10),
@@ -329,7 +408,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           height: 129,
           width: 340,
           child: Container(
-            color: const Color(0xFF999999),
+//            color: const Color(0xFF999999),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -337,7 +416,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   width: 270,
-                  color: const Color(0xFF199F27),
+                  color: const Color(0xFF100F27),
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -345,32 +424,48 @@ class _VideoState extends State<CarControlHomeActivity> {
                     children: <Widget>[
                       Stack(
                         children: <Widget>[
-                          Padding(
-                              padding: EdgeInsets.only(left: 8.5, top: 36),
-                              child: ImagesAnimation(
-                                durationSeconds: 1,
-                                w: 57,
-                                h: 57,
-                                entry: ImagesAnimationEntry(0, 26,
-                                    'assets/images/circles/圆圈点亮1_000%s.png'),
-                              )),
+                          StreamBuilder<Object>(
+                              stream: _streamControllerHeat.stream,
+                              initialData: 0,
+                              builder: (context, snapshot) {
+                                if (!isHeated) {
+                                  return new CircleOff();
+                                } else {
+                                  return new CircleOn();
+                                }
+                              }
+                          ),
                           Center(
                             child: IconButton(
-                                padding: EdgeInsets.all(10),
-                                iconSize: 55,
-                                icon: ImageIcon(
-                                  AssetImage(
-                                    'assets/images/open_bt_no_selection@3x.png',
-                                  ),
-                                  color: Colors.white,
+                              padding: EdgeInsets.all(10),
+                              iconSize: 55,
+                              icon: ImageIcon(
+                                AssetImage(
+                                  'assets/images/open_bt_no_selection@3x.png',
                                 ),
-                                onPressed: _addHeatingToStream),
+                                color: Colors.white,
+                              ),
+                              onPressed: onHeatClickListener,
+                            ),
                           ),
                         ],
                       ),
+/*
                       Stack(
                         children: <Widget>[
-                          IconButton(
+                          StreamBuilder<Object>(
+                              stream: _streamControllerHeat.stream,
+                              initialData: 0,
+                              builder: (context, snapshot) {
+                                if (!isWarmMode) {
+                                  return new CircleOff();
+                                } else {
+                                  return new CircleOn();
+                                }
+                              }
+                          ),
+                          Center(
+                            child: IconButton(
                               padding: EdgeInsets.all(10),
                               iconSize: 55,
                               icon: ImageIcon(
@@ -379,29 +474,40 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 ),
                                 color: Colors.white,
                               ),
-                              onPressed: _addHeatingToStream),
-                          Padding(
-                              padding: EdgeInsets.only(left: 8.5, top: 36),
-                              child: ImagesAnimation(
-                                durationSeconds: 1,
-                                w: 57,
-                                h: 57,
-                                entry: ImagesAnimationEntry(0, 26,
-                                    'assets/images/circles/圆圈点亮1_000%s.png'),
-                              )),
+                              onPressed: onWarmClickListener,
+                            ),
+                          ),
                         ],
                       ),
-                      Container(
-                        child: IconButton(
-                            iconSize: 55,
-                            icon: ImageIcon(
-                              AssetImage(
-                                'assets/images/cold_bt_no_selection@3x.png',
+                      Stack(
+                        children: <Widget>[
+                          StreamBuilder<Object>(
+                            stream: _streamControllerCold.stream,
+                            initialData: 0,
+                            builder: (context, snapshot) {
+                                if (!isColdMode) {
+                                  return new CircleOff();
+                                } else {
+                                  return new CircleOn();
+                                }
+                            }
+                          ),
+                          Center(
+                            child: IconButton(
+                              padding: EdgeInsets.all(10),
+                              iconSize: 55,
+                              icon: ImageIcon(
+                                AssetImage(
+                                  'assets/images/cold_bt_no_selection@3x.png',
+                                ),
+                                color: Colors.white,
                               ),
-                              color: Colors.white,
+                              onPressed: onColdClickListener,
                             ),
-                            onPressed: _addHeatingToStream),
+                          ),
+                        ],
                       ),
+*/
                     ],
                   ),
                 ),
@@ -411,6 +517,41 @@ class _VideoState extends State<CarControlHomeActivity> {
         )
       ]),
     );
+  }
+
+  var isHeated = false;
+  var isWarmMode = false;
+  var isColdMode = false;
+  int durationSeconds = 0;
+
+  void onHeatClickListener() {
+      isHeated = !isHeated;
+    _addHeatingToStream();
+    _streamControllerHeat.sink.add(++count);
+  }
+  void onWarmClickListener() {
+    isWarmMode = !isWarmMode;
+//    _addHeatingToStream();
+    _streamControllerWarm.sink.add(++count);
+  }
+  void onColdClickListener() {
+    isColdMode = !isColdMode;
+//    _addHeatingToStream();
+    _streamControllerCold.sink.add(++count);
+  }
+
+  Widget resetAnimation() {
+    ImagesAnimation imagesAnimation = new ImagesAnimation(
+      durationSeconds: 1,
+      entry: ImagesAnimationEntry(
+        0,
+        26,
+        'assets/images/circles/圆圈点亮1_000%s.png',
+      ),
+      h: 60,
+      w: 60,
+    );
+    return imagesAnimation;
   }
 
   _pageCarMode() {
@@ -596,4 +737,101 @@ class _VideoState extends State<CarControlHomeActivity> {
     pageList.add(_pageCarMode());
     return pageList[index];
   }
+
 }
+
+
+class CircleOn extends StatefulWidget {
+  _CircleOnState createState() => new _CircleOnState();
+}
+
+class AnimatedShow extends AnimatedWidget {
+  AnimatedShow({Key key, Animation<double> animation})
+      : super(key: key, listenable: animation);
+
+  Widget build(BuildContext context) {
+    final Animation<double> animation = listenable;
+    return new Center(
+      child: new Container(
+        padding: EdgeInsets.all(7),
+        child: new ImagesAnimation(
+          durationSeconds: 1,
+          entry: ImagesAnimationEntry(0,26,'assets/images/circles/圆圈点亮1_000%s.png'),
+          h: 60,
+          w: 60,
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleOnState extends State<CircleOn> with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation<double> animation;
+
+  initState() {
+    super.initState();
+    controller = new AnimationController(
+        duration: const Duration(milliseconds: 2000), vsync: this);
+    animation = new Tween(begin: 50.0, end: 50.0).animate(controller);
+    controller.forward();
+  }
+
+  Widget build(BuildContext context) {
+    return new AnimatedShow(animation: animation);
+  }
+
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+
+
+class CircleOff extends StatefulWidget {
+  _CircleOffState createState() => new _CircleOffState();
+}
+class _CircleOffState extends State<CircleOff> with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation<double> animation;
+
+  initState() {
+    super.initState();
+    controller = new AnimationController(
+        duration: const Duration(milliseconds: 2000), vsync: this);
+    animation = new Tween(begin: 50.0, end: 50.0).animate(controller);
+    controller.forward();
+  }
+
+  Widget build(BuildContext context) {
+    return new AnimatedDismiss(animation: animation);
+  }
+
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+class AnimatedDismiss extends AnimatedWidget {
+  AnimatedDismiss({Key key, Animation<double> animation})
+      : super(key: key, listenable: animation);
+
+  Widget build(BuildContext context) {
+    final Animation<double> animation = listenable;
+    return new Center(
+        child: new Container(
+          child: new ImagesAnimation(
+            durationSeconds: 1,
+            entry: ImagesAnimationEntry(0,0,'assets/images/circles/圆圈点亮1_000%s.png'),
+            h: 60,
+            w: 60,
+          ),
+      ),
+    );
+  }
+}
+
+
+
