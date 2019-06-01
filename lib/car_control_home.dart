@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_video_demo/utils/animation_begin.dart';
+import 'package:flutter_app_video_demo/utils/animation_end.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:async';
@@ -16,10 +18,6 @@ class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
   int count = 0;
 
-//  final StreamController<int> _streamControllerHeat = StreamController<int>();
-//  final StreamController<int> _streamControllerWarm = StreamController<int>();
-//  final StreamController<int> _streamControllerCold = StreamController<int>();
-
   VideoPlayerController _firstPageController,
       _secondPageController,
       _thirdPageController,
@@ -35,7 +33,8 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   StreamController<ImagesAnimation> _streamCircle;
 
-  StreamController<int> _streamControllerHeat,
+  StreamController<int> _streamControllerHeat,_vidoecom,
+
       _streamControllerWarm,
       _streamControllerCold;
 
@@ -110,6 +109,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     _streamControllerHeat = StreamController.broadcast();
     _streamControllerWarm = StreamController.broadcast();
     _streamControllerCold = StreamController.broadcast();
+    _vidoecom = StreamController.broadcast();
 
 
     _streamCircle.stream.listen(onDataCircle, onDone: onDone);
@@ -152,6 +152,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     _controllerHeating.dispose();
     _controllerUnHeating.dispose();
     _streamControllerHeat.close();
+    _vidoecom.close();
     _streamControllerWarm.close();
     _streamControllerCold.close();
     super.dispose();
@@ -315,7 +316,16 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: _checkAndPlayVideo(_firstPageController),
+          child: /*_checkAndPlayVideo(_firstPageController)*/StreamBuilder<Object>(
+              stream: _vidoecom.stream,
+              initialData: 0,
+              builder: (context, snapshot) {
+                if (!Look) {
+                  return new CircleOff();
+                } else {
+                  return new CircleOn();
+                }
+              }),
         ),
         SizedBox(
           child: Container(
@@ -367,7 +377,11 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 BorderRadius.all(Radius.circular(25))),
                         color: const Color(0xFF584AA8),
                       ),
-                      child: _myFlatButton(_isLocked),
+                      child: /*_myFlatButton(_isLocked)*/FlatButton(
+                          onPressed: () {
+                            _onLockClickLister();
+                          },
+                          child: _myButtonText('解锁')),
                     ),
                   ],
                 ),
@@ -378,6 +392,17 @@ class _VideoState extends State<CarControlHomeActivity> {
       ]),
     );
   }
+
+  bool Look = false;
+  void _onLockClickLister() {
+//    isHeated = !isHeated;
+//    _addHeatingToStream();
+    Look= !Look;
+    _vidoecom.sink.add(++count);
+  }
+
+
+
 
   _pageCarControl() {
     return Container(
@@ -465,7 +490,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                       Stack(
                         children: <Widget>[
                           StreamBuilder<Object>(
-                              stream: _streamControllerHeat.stream,
+                              stream: _streamControllerWarm.stream,
                               initialData: 0,
                               builder: (context, snapshot) {
                                 if (!isWarmMode) {
@@ -550,20 +575,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     isColdMode = !isColdMode;
 //    _addHeatingToStream();
     _streamControllerCold.sink.add(++count);
-  }
-
-  Widget resetAnimation() {
-    ImagesAnimation imagesAnimation = new ImagesAnimation(
-      durationSeconds: 1,
-      entry: ImagesAnimationEntry(
-        0,
-        26,
-        'assets/images/circles/圆圈点亮1_000%s.png',
-      ),
-      h: 60,
-      w: 60,
-    );
-    return imagesAnimation;
   }
 
   _pageCarMode() {
@@ -749,99 +760,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     pageList.add(_pageCarMode());
     return pageList[index];
   }
+
 }
 
-class CircleOn extends StatefulWidget {
-  _CircleOnState createState() => new _CircleOnState();
-}
-
-class AnimatedShow extends AnimatedWidget {
-  AnimatedShow({Key key, Animation<double> animation})
-      : super(key: key, listenable: animation);
-
-  Widget build(BuildContext context) {
-    final Animation<double> animation = listenable;
-    return new Center(
-      child: new Container(
-        padding: EdgeInsets.all(7),
-        child: new ImagesAnimation(
-          durationSeconds: 1,
-          entry: ImagesAnimationEntry(
-              0, 26, 'assets/images/circles/圆圈点亮1_000%s.png'),
-          h: 60,
-          w: 60,
-        ),
-      ),
-    );
-  }
-}
-
-class _CircleOnState extends State<CircleOn>
-    with SingleTickerProviderStateMixin {
-  AnimationController controller;
-  Animation<double> animation;
-
-  initState() {
-    super.initState();
-    controller = new AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
-    animation = new Tween(begin: 50.0, end: 50.0).animate(controller);
-    controller.forward();
-  }
-
-  Widget build(BuildContext context) {
-    return new AnimatedShow(animation: animation);
-  }
-
-  dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-}
-
-class CircleOff extends StatefulWidget {
-  _CircleOffState createState() => new _CircleOffState();
-}
-
-class _CircleOffState extends State<CircleOff>
-    with SingleTickerProviderStateMixin {
-  AnimationController controller;
-  Animation<double> animation;
-
-  initState() {
-    super.initState();
-    controller = new AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
-    animation = new Tween(begin: 50.0, end: 50.0).animate(controller);
-    controller.forward();
-  }
-
-  Widget build(BuildContext context) {
-    return new AnimatedDismiss(animation: animation);
-  }
-
-  dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-}
-
-class AnimatedDismiss extends AnimatedWidget {
-  AnimatedDismiss({Key key, Animation<double> animation})
-      : super(key: key, listenable: animation);
-
-  Widget build(BuildContext context) {
-    final Animation<double> animation = listenable;
-    return new Center(
-      child: new Container(
-        child: new ImagesAnimation(
-          durationSeconds: 1,
-          entry: ImagesAnimationEntry(
-              0, 0, 'assets/images/circles/圆圈点亮1_000%s.png'),
-          h: 60,
-          w: 60,
-        ),
-      ),
-    );
-  }
-}
