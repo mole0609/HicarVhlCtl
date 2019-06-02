@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_video_demo/utils/image_util.dart';
 
-class CircleOff extends StatefulWidget {
-  _CircleOffState createState() => new _CircleOffState();
+class OriToHeat extends StatefulWidget {
+  _OriToHeatState createState() => new _OriToHeatState();
 }
 
-class _CircleOffState extends State<CircleOff>
+class _OriToHeatState extends State<OriToHeat>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
@@ -40,9 +40,9 @@ class AnimatedDismiss extends AnimatedWidget {
         child: new ImagesAnimation(
           durationSeconds: 1,
           entry: ImagesAnimationEntry(
-              0, 0, 'assets/images/circles/圆圈点亮1_000%s.png'),
-          h: 60,
-          w: 60,
+              0, 19, 'assets/images/ori_heat/ori_heat_0%s.png'),
+          h: 230,
+          w: 328,
         ),
       ),
     );

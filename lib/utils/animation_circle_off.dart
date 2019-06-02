@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_video_demo/utils/image_util.dart';
-import 'package:flutter_app_video_demo/utils/video_unlock.dart';
-import 'package:video_player/video_player.dart';
 
-class VideoOn extends StatefulWidget {
-  _VideoOnState createState() => new _VideoOnState();
+class CircleOff extends StatefulWidget {
+  _CircleOffState createState() => new _CircleOffState();
 }
-class _VideoOnState extends State<VideoOn>
+
+class _CircleOffState extends State<CircleOff>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
 
   initState() {
     super.initState();
-
     controller = new AnimationController(
         duration: const Duration(milliseconds: 2000), vsync: this);
     animation = new Tween(begin: 50.0, end: 50.0).animate(controller);
@@ -22,7 +20,7 @@ class _VideoOnState extends State<VideoOn>
   }
 
   Widget build(BuildContext context) {
-    return new AnimatedShow(animation: animation);
+    return new AnimatedDismiss(animation: animation);
   }
 
   dispose() {
@@ -31,8 +29,8 @@ class _VideoOnState extends State<VideoOn>
   }
 }
 
-class AnimatedShow extends AnimatedWidget {
-  AnimatedShow({Key key, Animation<double> animation})
+class AnimatedDismiss extends AnimatedWidget {
+  AnimatedDismiss({Key key, Animation<double> animation})
       : super(key: key, listenable: animation);
 
   Widget build(BuildContext context) {
@@ -40,9 +38,14 @@ class AnimatedShow extends AnimatedWidget {
     return new Center(
       child: new Container(
         padding: EdgeInsets.all(7),
-        child: VideoUnlock(),
+        child: new ImagesAnimation(
+          durationSeconds: 1,
+          entry: ImagesAnimationEntry(
+              0, 0, 'assets/images/circles/圆圈点亮1_000%s.png'),
+          h: 60,
+          w: 60,
+        ),
       ),
     );
   }
 }
-

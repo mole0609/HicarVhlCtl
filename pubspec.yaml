@@ -52,6 +52,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/circles/
+    - assets/images/ori_heat/
     - assets/videos/page_1/
     - assets/videos/page_2/
     - assets/videos/page_3/

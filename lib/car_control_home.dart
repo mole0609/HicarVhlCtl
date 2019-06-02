@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_video_demo/utils/animation_begin.dart';
-import 'package:flutter_app_video_demo/utils/animation_end.dart';
+import 'package:flutter_app_video_demo/utils/animation_circle_on.dart';
+import 'package:flutter_app_video_demo/utils/animation_circle_off.dart';
+import 'package:flutter_app_video_demo/utils/animation_heat_ori.dart';
+import 'package:flutter_app_video_demo/utils/animation_ori_heat.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:flutter_app_video_demo/utils/video_begin.dart';
 import 'package:flutter_app_video_demo/utils/video_end.dart';
@@ -317,18 +319,17 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: _checkAndPlayVideo(_firstPageController)
-/*          StreamBuilder<Object>(
-              stream: _vidoecom.stream,
+          child: /*_checkAndPlayVideo(_firstPageController)*/
+          StreamBuilder<Object>(
+              stream: _streamControllerLock.stream,
               initialData: 0,
               builder: (context, snapshot) {
                 if (!_isLockedBT) {
-                  return new VideoOff();
+                  return new VideoOn();
                 } else {
                   return new VideoOff();
                 }
-              })*/
-              ,
+              }),
         ),
         SizedBox(
           child: Container(
@@ -414,7 +415,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   void _onLockClickLister() {
     _addLockToStream();
     _isLockedBT = !_isLockedBT;
-    _streamControllerLock.sink.add(++count);
+//    _streamControllerLock.sink.add(++count);
   }
 
   _pageCarControl() {
@@ -423,7 +424,26 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: _checkAndPlayVideo(_secondPageController),
+          child: /*_checkAndPlayVideo(_secondPageController),*/
+          StreamBuilder<Object>(
+              stream: _streamControllerHeat.stream,
+              initialData: 0,
+              builder: (context, snapshot) {
+                printLog('isHeated---------------'+isHeated.toString());
+                if (isHeated) {
+                  return new OriToHeat();
+                } else {
+                  if(true){
+                    return Image(
+                      image: AssetImage('assets/images/ori_heat/ori_heat_00.png'),
+                      fit: BoxFit.contain,
+                    );
+                  }
+
+                  return new HeatToOri();
+                }
+              }),
+
         ),
         SizedBox(
           child: Container(
@@ -572,7 +592,7 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   void onHeatClickListener() {
     isHeated = !isHeated;
-    _addHeatingToStream();
+//    _addHeatingToStream();
     _streamControllerHeat.sink.add(++count);
   }
 
@@ -594,11 +614,117 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: Text(
-            "PAGE3",
-            style: TextStyle(color: Colors.white),
+          child: _checkAndPlayVideo(_secondPageController),
+        ),
+        SizedBox(
+          child: Container(
+            padding: EdgeInsets.only(
+              left: 20,
+            ),
+            color: const Color(0xFF100F27),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  child: Image(
+                    image: AssetImage('assets/images/home_icon_refresh@3x.png'),
+                    fit: BoxFit.contain,
+                    height: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 5.0),
+                  child: Text(
+                    "刷新时间：${_getCurrentTime()}",
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+        SizedBox(
+          height: 129,
+          width: 340,
+          child: Container(
+//            color: const Color(0xFF999999),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  width: 270,
+                  color: const Color(0xFF100F27),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Stack(
+                        children: <Widget>[
+                          StreamBuilder<Object>(
+                              stream: _streamControllerHeat.stream,
+                              initialData: 0,
+                              builder: (context, snapshot) {
+                                if (!isHeated) {
+                                  return new CircleOff();
+                                } else {
+                                  return new CircleOn();
+                                }
+                              }),
+                          Center(
+                            child: IconButton(
+                              padding: EdgeInsets.all(10),
+                              iconSize: 55,
+                              icon: ImageIcon(
+                                AssetImage(
+                                  'assets/images/trail_bt_no_selection@3x.png',
+                                ),
+                                color: Colors.white,
+                              ),
+                              onPressed: onHeatClickListener,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Stack(
+                        children: <Widget>[
+                          StreamBuilder<Object>(
+                              stream: _streamControllerWarm.stream,
+                              initialData: 0,
+                              builder: (context, snapshot) {
+                                if (!isWarmMode) {
+                                  return new CircleOff();
+                                } else {
+                                  return new CircleOn();
+                                }
+                              }),
+                          Center(
+                            child: IconButton(
+                              padding: EdgeInsets.all(10),
+                              iconSize: 55,
+                              icon: ImageIcon(
+                                AssetImage(
+                                  'assets/images/window_bt_no_selection@3x.png',
+                                ),
+                                color: Colors.white,
+                              ),
+                              onPressed: onWarmClickListener,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
       ]),
     );
   }
@@ -766,8 +892,8 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   Widget _swiperBuilder(BuildContext context, int index) {
     List<Widget> pageList = new List();
-    pageList.add(_pageCarControl());
     pageList.add(_pageUnlock());
+    pageList.add(_pageCarControl());
     pageList.add(_pageCarMode());
     return pageList[index];
   }

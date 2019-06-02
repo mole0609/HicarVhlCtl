@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_video_demo/utils/image_util.dart';
+import 'package:flutter_app_video_demo/utils/video_lock.dart';
 import 'package:flutter_app_video_demo/utils/video_unlock.dart';
 
 class VideoOff extends StatefulWidget {
@@ -39,7 +40,7 @@ class AnimatedDismiss extends AnimatedWidget {
     return new Center(
       child: new Container(
         padding: EdgeInsets.all(7),
-        child: VideoUnlock(),
+        child: VideoLock(),
       ),
     );
   }
