@@ -55,7 +55,6 @@ class _InState extends State<ImagesAnimation> with TickerProviderStateMixin {
       },
     );
   }
-
 }
 
 class ImagesAnimationEntry {

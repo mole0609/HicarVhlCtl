@@ -27,7 +27,7 @@ class _VideoLockState extends State<VideoLock> {
         backgroundColor: const Color(0xFF100F27),
         body: Center(
             child: AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
+              aspectRatio: 3 / 2,
               child: VideoPlayer(_controller),
             )));
   }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_video_demo/utils/animation_circle_on.dart';
 import 'package:flutter_app_video_demo/utils/animation_circle_off.dart';
 import 'package:flutter_app_video_demo/utils/animation_heat_ori.dart';
+import 'package:flutter_app_video_demo/utils/animation_lock_unlock.dart';
 import 'package:flutter_app_video_demo/utils/animation_ori_heat.dart';
+import 'package:flutter_app_video_demo/utils/animation_unlock_lock.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:flutter_app_video_demo/utils/video_begin.dart';
 import 'package:flutter_app_video_demo/utils/video_end.dart';
@@ -241,13 +243,11 @@ class _VideoState extends State<CarControlHomeActivity> {
     return isLocked
         ? FlatButton(
             onPressed: () {
-              printLog('FlatButton----------isLock: ' + _isLocked.toString());
               _addLockToStream();
             },
             child: _myButtonText('解锁'))
         : FlatButton(
             onPressed: () {
-              printLog('FlatButton----------isLock: ' + _isLocked.toString());
               _addUnLockToStream();
             },
             child: _myButtonText('上锁'));
@@ -319,15 +319,14 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: /*_checkAndPlayVideo(_firstPageController)*/
-          StreamBuilder<Object>(
+          child: StreamBuilder<Object>(
               stream: _streamControllerLock.stream,
               initialData: 0,
               builder: (context, snapshot) {
                 if (!_isLockedBT) {
-                  return new VideoOn();
+                  return new LockToUnLock();
                 } else {
-                  return new VideoOff();
+                  return new UnLockToLock();
                 }
               }),
         ),
@@ -375,31 +374,24 @@ class _VideoState extends State<CarControlHomeActivity> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Container(
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(25))),
-                        color: const Color(0xFF584AA8),
-                      ),
-                      child: StreamBuilder<Object>(
-                          stream: _streamControllerLock.stream,
-                          initialData: 0,
-                          builder: (context, snapshot) {
-                            if (_isLockedBT) {
-                              return FlatButton(
-                                  onPressed: () {
-                                    _onLockClickLister();
-                                  },
-                                  child: _myButtonText('解锁'));
-                            } else {
-                              return FlatButton(
-                                  onPressed: () {
-                                    _onLockClickLister();
-                                  },
-                                  child: _myButtonText('上锁'));
-                            }
-                          }),
-                    ),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25))),
+                          color: const Color(0xFF584AA8),
+                        ),
+                        child: FlatButton(
+                            onPressed: () {
+                              _onLockClickLister();
+                            },
+                            child: StreamBuilder<Object>(
+                                stream: _streamControllerLock.stream,
+                                initialData: 0,
+                                builder: (context, snapshot) {
+                                  return _isLockedBT
+                                      ? _myButtonText('解锁')
+                                      : _myButtonText('上锁');
+                                }))),
                   ],
                 ),
               ),
@@ -415,7 +407,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   void _onLockClickLister() {
     _addLockToStream();
     _isLockedBT = !_isLockedBT;
-//    _streamControllerLock.sink.add(++count);
+    _streamControllerLock.sink.add(++count);
   }
 
   _pageCarControl() {
@@ -424,26 +416,17 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: /*_checkAndPlayVideo(_secondPageController),*/
-          StreamBuilder<Object>(
+          child: StreamBuilder<Object>(
               stream: _streamControllerHeat.stream,
               initialData: 0,
               builder: (context, snapshot) {
-                printLog('isHeated---------------'+isHeated.toString());
+                printLog('isHeated---------------' + isHeated.toString());
                 if (isHeated) {
                   return new OriToHeat();
                 } else {
-                  if(true){
-                    return Image(
-                      image: AssetImage('assets/images/ori_heat/ori_heat_00.png'),
-                      fit: BoxFit.contain,
-                    );
-                  }
-
                   return new HeatToOri();
                 }
               }),
-
         ),
         SizedBox(
           child: Container(
@@ -480,103 +463,205 @@ class _VideoState extends State<CarControlHomeActivity> {
           width: 340,
           child: Container(
 //            color: const Color(0xFF999999),
+            margin: EdgeInsets.only(top: 25),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Container(
-                  width: 270,
-                  color: const Color(0xFF100F27),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      Stack(
-                        children: <Widget>[
-                          StreamBuilder<Object>(
-                              stream: _streamControllerHeat.stream,
-                              initialData: 0,
-                              builder: (context, snapshot) {
-                                if (!isHeated) {
-                                  return new CircleOff();
-                                } else {
-                                  return new CircleOn();
-                                }
-                              }),
-                          Center(
-                            child: IconButton(
-                              padding: EdgeInsets.all(10),
-                              iconSize: 55,
-                              icon: ImageIcon(
-                                AssetImage(
-                                  'assets/images/open_bt_no_selection@3x.png',
+                    width: 270,
+                    color: const Color(0xFF100F27),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            Stack(
+                              children: <Widget>[
+                                StreamBuilder<Object>(
+                                    stream: _streamControllerHeat.stream,
+                                    initialData: 0,
+                                    builder: (context, snapshot) {
+                                      if (!isHeated) {
+                                        return new CircleOff();
+                                      } else {
+                                        return new CircleOn();
+                                      }
+                                    }),
+                                Center(
+                                  child: IconButton(
+                                    padding: EdgeInsets.all(10),
+                                    iconSize: 55,
+                                    icon: StreamBuilder<Object>(
+                                        stream: _streamControllerHeat.stream,
+                                        initialData: 0,
+                                        builder: (context, snapshot) {
+                                          return !isHeated
+                                              ? ImageIcon(
+                                                  AssetImage(
+                                                    'assets/images/open_bt_no_selection@3x.png',
+                                                  ),
+                                                  color: Colors.white,
+                                                )
+                                              : ImageIcon(
+                                                  AssetImage(
+                                                    'assets/images/open_bt_selection@3x.png',
+                                                  ),
+                                                  color: Colors.white,
+                                                );
+                                        }),
+                                    onPressed: onHeatClickListener,
+                                  ),
                                 ),
-                                color: Colors.white,
-                              ),
-                              onPressed: onHeatClickListener,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      Stack(
-                        children: <Widget>[
-                          StreamBuilder<Object>(
-                              stream: _streamControllerWarm.stream,
-                              initialData: 0,
-                              builder: (context, snapshot) {
-                                if (!isWarmMode) {
-                                  return new CircleOff();
-                                } else {
-                                  return new CircleOn();
-                                }
-                              }),
-                          Center(
-                            child: IconButton(
-                              padding: EdgeInsets.all(10),
-                              iconSize: 55,
-                              icon: ImageIcon(
-                                AssetImage(
-                                  'assets/images/heat_bt_no_selection@3x.png',
+                            StreamBuilder<Object>(
+                                stream: _streamControllerHeat.stream,
+                                initialData: 0,
+                                builder: (context, snapshot) {
+                                  return !isHeated
+                                      ? Text(
+                                          '热车',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        )
+                                      : Text(
+                                          '正在热车',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        );
+                                }),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Stack(
+                              children: <Widget>[
+                                StreamBuilder<Object>(
+                                    stream: _streamControllerWarm.stream,
+                                    initialData: 0,
+                                    builder: (context, snapshot) {
+                                      if (!isWarmMode) {
+                                        return new CircleOff();
+                                      } else {
+                                        return new CircleOn();
+                                      }
+                                    }),
+                                Center(
+                                  child: IconButton(
+                                    padding: EdgeInsets.all(10),
+                                    iconSize: 55,
+                                    icon: StreamBuilder<Object>(
+                                        stream: _streamControllerWarm.stream,
+                                        initialData: 0,
+                                        builder: (context, snapshot) {
+                                          return !isWarmMode
+                                              ? ImageIcon(
+                                                  AssetImage(
+                                                    'assets/images/heat_bt_no_selection@3x.png',
+                                                  ),
+                                                  color: Colors.white,
+                                                )
+                                              : ImageIcon(
+                                                  AssetImage(
+                                                    'assets/images/heat_bt_selection@3x.png',
+                                                  ),
+                                                  color: Colors.white,
+                                                );
+                                        }),
+                                    onPressed: onWarmClickListener,
+                                  ),
                                 ),
-                                color: Colors.white,
-                              ),
-                              onPressed: onWarmClickListener,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      Stack(
-                        children: <Widget>[
-                          StreamBuilder<Object>(
-                              stream: _streamControllerCold.stream,
-                              initialData: 0,
-                              builder: (context, snapshot) {
-                                if (!isColdMode) {
-                                  return new CircleOff();
-                                } else {
-                                  return new CircleOn();
-                                }
-                              }),
-                          Center(
-                            child: IconButton(
-                              padding: EdgeInsets.all(10),
-                              iconSize: 55,
-                              icon: ImageIcon(
-                                AssetImage(
-                                  'assets/images/cold_bt_no_selection@3x.png',
+                            StreamBuilder<Object>(
+                                stream: _streamControllerWarm.stream,
+                                initialData: 0,
+                                builder: (context, snapshot) {
+                                  return !isWarmMode
+                                      ? Text(
+                                          '温暖',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        )
+                                      : Text(
+                                          '温暖已开启',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        );
+                                }),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Stack(
+                              children: <Widget>[
+                                StreamBuilder<Object>(
+                                    stream: _streamControllerCold.stream,
+                                    initialData: 0,
+                                    builder: (context, snapshot) {
+                                      if (!isColdMode) {
+                                        return new CircleOff();
+                                      } else {
+                                        return new CircleOn();
+                                      }
+                                    }),
+                                Center(
+                                  child: IconButton(
+                                    padding: EdgeInsets.all(10),
+                                    iconSize: 55,
+                                    icon: StreamBuilder<Object>(
+                                        stream: _streamControllerCold.stream,
+                                        initialData: 0,
+                                        builder: (context, snapshot) {
+                                          return !isColdMode
+                                              ? ImageIcon(
+                                                  AssetImage(
+                                                    'assets/images/heat_bt_no_selection@3x.png',
+                                                  ),
+                                                  color: Colors.white,
+                                                )
+                                              : ImageIcon(
+                                                  AssetImage(
+                                                    'assets/images/heat_bt_selection@3x.png',
+                                                  ),
+                                                  color: Colors.white,
+                                                );
+                                        }),
+                                    onPressed: onColdClickListener,
+                                  ),
                                 ),
-                                color: Colors.white,
-                              ),
-                              onPressed: onColdClickListener,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                            StreamBuilder<Object>(
+                                stream: _streamControllerCold.stream,
+                                initialData: 0,
+                                builder: (context, snapshot) {
+                                  return !isColdMode
+                                      ? Text(
+                                          '清凉',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        )
+                                      : Text(
+                                          '清凉已开启',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white),
+                                        );
+                                }),
+                          ],
+                        ),
+                      ],
+                    )),
               ],
             ),
           ),
