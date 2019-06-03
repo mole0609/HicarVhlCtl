@@ -23,11 +23,11 @@ dependencies:
   flutter_gallery_assets: 0.1.6
   connectivity: 0.3.2
   flutter_swiper: ^1.0.6
+  cupertino_icons: ^0.1.2
+  sprintf: "^4.0.0"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
-  sprintf: "^4.0.0"
 
 dev_dependencies:
   flutter_test:
@@ -52,8 +52,13 @@ flutter:
   assets:
     - assets/images/
     - assets/images/circles/
+    - assets/images/heat_cool/
+    - assets/images/heat_warm/
+    - assets/images/ori_cool/
     - assets/images/ori_heat/
+    - assets/images/ori_warm/
     - assets/images/unlock_lock/
+    - assets/images/warm_cool/
     - assets/videos/page_1/
     - assets/videos/page_2/
     - assets/videos/page_3/

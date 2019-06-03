@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'package:sprintf/sprintf.dart';
 
 class ImagesAnimation extends StatefulWidget {
@@ -30,7 +31,6 @@ class _InState extends State<ImagesAnimation> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    print('[CarContrlLog]------begin animation');
     _controller = new AnimationController(
         vsync: this, duration: Duration(seconds: widget.durationSeconds))..forward();
 //    _controller.addStatusListener(listener);

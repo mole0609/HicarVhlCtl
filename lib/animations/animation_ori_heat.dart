@@ -40,7 +40,7 @@ class AnimatedDismiss extends AnimatedWidget {
         child: new ImagesAnimation(
           durationSeconds: 1,
           entry: ImagesAnimationEntry(
-              0, 19, 'assets/images/ori_heat/ori_heat_0%s.png'),
+              0, 19, 'assets/images/ori_heat/1原角度——热车（开）_000%s.jpg'),
           h: 230,
           w: 328,
         ),
