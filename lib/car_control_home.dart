@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_video_demo/utils/animation_circle_on.dart';
-import 'package:flutter_app_video_demo/utils/animation_circle_off.dart';
-import 'package:flutter_app_video_demo/utils/animation_heat_ori.dart';
-import 'package:flutter_app_video_demo/utils/animation_lock_unlock.dart';
-import 'package:flutter_app_video_demo/utils/animation_ori_heat.dart';
-import 'package:flutter_app_video_demo/utils/animation_unlock_lock.dart';
+import 'package:flutter_app_video_demo/animations/animation_circle_on.dart';
+import 'package:flutter_app_video_demo/animations/animation_circle_off.dart';
+import 'package:flutter_app_video_demo/animations/animation_heat_ori.dart';
+import 'package:flutter_app_video_demo/animations/animation_lock_unlock.dart';
+import 'package:flutter_app_video_demo/animations/animation_ori_heat.dart';
+import 'package:flutter_app_video_demo/animations/animation_unlock_lock.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
-import 'package:flutter_app_video_demo/utils/video_begin.dart';
-import 'package:flutter_app_video_demo/utils/video_end.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'utils/image_util.dart';
@@ -24,71 +22,26 @@ class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
   int count = 0;
 
-  VideoPlayerController _firstPageController,
-      _secondPageController,
-      _thirdPageController,
-      _controllerLock,
-      _controllerUnLock,
-      _controllerHeating,
-      _controllerUnHeating;
-
-  StreamController<VideoPlayerController> _streamLock,
-      _streamUnLock,
-      _streamHeating,
-      _streamUnHeating;
-
-  StreamController<ImagesAnimation> _streamCircle;
-
   StreamController<int> _streamControllerLock,
       _streamControllerHeat,
       _streamControllerWarm,
-      _streamControllerCold;
-
-  StreamSubscription _circleSubscription;
+      _streamControllerCold,
+      _streamControllerWindow,
+      _streamControllerTrail
+  ;
 
   ImagesAnimation imagesAnimation;
   ImagesAnimationEntry imagesAnimationEntry;
 
-  bool _isInit = false;
   bool _isLocked = true;
-  int _index = 1;
-  StreamSink _sinkDemo;
-
-  bool _isHeating = false;
-  bool isWarm = false;
-  bool isCold = false;
+  bool _isHeated = false;
+  bool _isWarmed = false;
+  bool _isCooled = false;
+  bool _isWinClosed = false;
+  bool _isTraClosed = false;
 
   _VideoState() {
-    /*---------------page1 begin--------------*/
-    _controllerLock = VideoPlayerController.asset(
-      'assets/videos/page_1/lock_unlock.mp4',
-    );
-    _controllerLock.setLooping(false);
-    _controllerLock.setVolume(0.0);
-
-    _controllerUnLock = VideoPlayerController.asset(
-      'assets/videos/page_1/unlock_lock.mp4',
-    );
-    _controllerUnLock.setLooping(false);
-    _controllerUnLock.setVolume(0.0);
-    _firstPageController = _controllerLock;
-    /*---------------page1 end----------------*/
-
-    /*---------------page2 begin--------------*/
-    _controllerHeating = VideoPlayerController.asset(
-      'assets/videos/page_2/ori_heating.mp4',
-    );
-    _controllerHeating.setLooping(false);
-    _controllerHeating.setVolume(0.0);
-
-    _controllerUnHeating = VideoPlayerController.asset(
-      'assets/videos/page_2/heating_ori.mp4',
-    );
-    _controllerUnHeating.setLooping(false);
-    _controllerUnHeating.setVolume(0.0);
-
-    _secondPageController = _controllerHeating;
-    /*---------------page2 end----------------*/
+    printLog('_VideoState--------------');
     imagesAnimation = new ImagesAnimation(
       durationSeconds: 1,
       entry: ImagesAnimationEntry(
@@ -105,127 +58,55 @@ class _VideoState extends State<CarControlHomeActivity> {
   void initState() {
     super.initState();
     printLog('initState-----------------');
-
-    _streamCircle = StreamController.broadcast();
-    _streamLock = StreamController.broadcast();
-    _streamUnLock = StreamController.broadcast();
-    _streamHeating = StreamController.broadcast();
-    _streamUnHeating = StreamController.broadcast();
-
     _streamControllerHeat = StreamController.broadcast();
     _streamControllerWarm = StreamController.broadcast();
     _streamControllerCold = StreamController.broadcast();
     _streamControllerLock = StreamController.broadcast();
-
-    _streamCircle.stream.listen(onDataCircle, onDone: onDone);
-    _streamLock.stream.listen(onDataLock, onDone: onDone);
-    _streamUnLock.stream.listen(onDataUnLock, onDone: onDone);
-    _streamHeating.stream.listen(onDataHeating, onDone: onDone);
-    _streamUnHeating.stream.listen(onDataUnHeating, onDone: onDone);
-
-    _sinkDemo = _streamCircle.sink;
-
-    _controllerLock.initialize().then((value) {
-      setState(() {
-        _isInit = _controllerLock.value.initialized;
-      });
-    });
-
-    _controllerUnLock.initialize().then((value) {
-      setState(() {
-        _isInit = _controllerUnLock.value.initialized;
-      });
-    });
-
-    _controllerHeating.initialize().then((value) {
-      setState(() {
-        _isInit = _controllerHeating.value.initialized;
-      });
-    });
-    _controllerUnHeating.initialize().then((value) {
-      setState(() {
-        _isInit = _controllerUnHeating.value.initialized;
-      });
-    });
+    _streamControllerWindow = StreamController.broadcast();
+    _streamControllerTrail = StreamController.broadcast();
   }
 
   @override
   void dispose() {
     printLog('dispose-----------------');
-    _controllerLock.dispose();
-    _controllerUnLock.dispose();
-    _controllerHeating.dispose();
-    _controllerUnHeating.dispose();
     _streamControllerHeat.close();
     _streamControllerLock.close();
     _streamControllerWarm.close();
     _streamControllerCold.close();
+    _streamControllerWindow.close();
+    _streamControllerTrail.close();
     super.dispose();
   }
 
-  void onDataCircle(ImagesAnimation data) {
-    setState(() {
-      imagesAnimation = data;
-    });
-  }
 
-  void onDataLock(VideoPlayerController data) {
-    setState(() {
-      _firstPageController = data;
-    });
-    _firstPageController.initialize();
-    _firstPageController.play();
+  void _onLockClickLister() {
     _isLocked = !_isLocked;
+    _streamControllerLock.sink.add(++count);
   }
-
-  void onDataUnLock(VideoPlayerController data) {
-    setState(() {
-      _firstPageController = data;
-    });
-    _firstPageController.initialize();
-    _firstPageController.play();
+  void onHeatClickListener() {
+    _isHeated = !_isHeated;
+//    _addHeatingToStream();
+    _streamControllerHeat.sink.add(++count);
   }
-
-  void onDataHeating(VideoPlayerController data) {
-    setState(() {
-      _secondPageController = data;
-    });
-    _secondPageController.initialize();
-    _secondPageController.play();
+  void onWarmClickListener() {
+    _isWarmed = !_isWarmed;
+//    _addHeatingToStream();
+    _streamControllerWarm.sink.add(++count);
   }
-
-  void onDataUnHeating(VideoPlayerController data) {
-    setState(() {
-      _secondPageController = data;
-    });
-    _secondPageController.initialize();
-    _secondPageController.play();
+  void onColdClickListener() {
+    _isCooled = !_isCooled;
+//    _addHeatingToStream();
+    _streamControllerCold.sink.add(++count);
   }
-
-  void onDone() {
-    printLog('onDone');
+  void onWindowClickListener() {
+    _isWinClosed = !_isWinClosed;
+//    _addHeatingToStream();
+    _streamControllerWindow.sink.add(++count);
   }
-
-  ///创建播放中的视频界面
-  Widget _buildPlayingWidget(VideoPlayerController controller) {
-    return AspectRatio(
-        aspectRatio: 3 / 2,
-        child: GestureDetector(
-          child: VideoPlayer(controller),
-        ));
-  }
-
-  ///视频正在加载的界面
-  Widget _buildInitingWidget(VideoPlayerController controller) {
-    return AspectRatio(
-      aspectRatio: 3 / 2,
-      child: Stack(
-        children: <Widget>[
-          VideoPlayer(controller),
-        ],
-        fit: StackFit.expand,
-      ),
-    );
+  void onTrailClickListener() {
+    _isTraClosed = !_isTraClosed;
+//    _addHeatingToStream();
+    _streamControllerTrail.sink.add(++count);
   }
 
   _getCurrentTime() {
@@ -233,84 +114,12 @@ class _VideoState extends State<CarControlHomeActivity> {
         DateTime.now(), [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn, ':', ss]);
   }
 
-  Widget _checkAndPlayVideo(VideoPlayerController controller) {
-    return _isInit
-        ? _buildPlayingWidget(controller)
-        : _buildInitingWidget(controller);
-  }
-
-  Widget _myFlatButton(bool isLocked) {
-    return isLocked
-        ? FlatButton(
-            onPressed: () {
-              _addLockToStream();
-            },
-            child: _myButtonText('解锁'))
-        : FlatButton(
-            onPressed: () {
-              _addUnLockToStream();
-            },
-            child: _myButtonText('上锁'));
-  }
-
-  Widget _myButtonText(String msg) {
-    return Text(
-      '                 $msg                 ',
-      style: TextStyle(color: Colors.white, fontSize: 25),
-    );
-  }
-
-  void _addCircleToStream() async {
-    ImagesAnimation data = await fetchCircleData();
-    _streamCircle.add(data);
-//    _sinkDemo.add(data);
-  }
-
-  void _addLockToStream() async {
-    VideoPlayerController data = await fetchLockData();
-    _streamLock.add(data);
-  }
-
-  void _addUnLockToStream() async {
-    VideoPlayerController data = await fetchLockData();
-    _streamUnLock.add(data);
-  }
-
-  void _addHeatingToStream() async {
-    VideoPlayerController data = await fetchHeatingData();
-    _streamHeating.add(data);
-    _isHeating = true;
-  }
-
-  void _addUnHeatingToStream() async {
-    VideoPlayerController data = await fetchUnHeatingData();
-    _streamUnHeating.add(data);
-    _isHeating = false;
-  }
-
-  Future<ImagesAnimation> fetchCircleData() async {
-    return imagesAnimation;
-  }
-
-  Future<VideoPlayerController> fetchLockData() async {
-    await Future.delayed(Duration(
-      seconds: 1,
-    ));
-    return _isLocked ? _controllerLock : _controllerUnLock;
-  }
-
-  Future<VideoPlayerController> fetchHeatingData() async {
-    await Future.delayed(Duration(
-      seconds: 1,
-    ));
-    return _controllerHeating;
-  }
-
-  Future<VideoPlayerController> fetchUnHeatingData() async {
-    await Future.delayed(Duration(
-      seconds: 1,
-    ));
-    return _controllerUnHeating;
+  Widget _swiperBuilder(BuildContext context, int index) {
+    List<Widget> pageList = new List();
+    pageList.add(_pageUnlock());
+    pageList.add(_pageCarControl());
+    pageList.add(_pageCarMode());
+    return pageList[index];
   }
 
   _pageUnlock() {
@@ -323,7 +132,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               stream: _streamControllerLock.stream,
               initialData: 0,
               builder: (context, snapshot) {
-                if (!_isLockedBT) {
+                if (!_isLocked) {
                   return new LockToUnLock();
                 } else {
                   return new UnLockToLock();
@@ -377,7 +186,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                         decoration: ShapeDecoration(
                           shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(25))),
+                              BorderRadius.all(Radius.circular(25))),
                           color: const Color(0xFF584AA8),
                         ),
                         child: FlatButton(
@@ -388,9 +197,11 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 stream: _streamControllerLock.stream,
                                 initialData: 0,
                                 builder: (context, snapshot) {
-                                  return _isLockedBT
-                                      ? _myButtonText('解锁')
-                                      : _myButtonText('上锁');
+                                  return _isLocked
+                                      ? Text('                 解锁                 ',
+                                    style: TextStyle(color: Colors.white, fontSize: 25),)
+                                      : Text('                 上锁                 ',
+                                    style: TextStyle(color: Colors.white, fontSize: 25),);
                                 }))),
                   ],
                 ),
@@ -401,15 +212,6 @@ class _VideoState extends State<CarControlHomeActivity> {
       ]),
     );
   }
-
-  bool _isLockedBT = true;
-
-  void _onLockClickLister() {
-    _addLockToStream();
-    _isLockedBT = !_isLockedBT;
-    _streamControllerLock.sink.add(++count);
-  }
-
   _pageCarControl() {
     return Container(
       child: Column(children: <Widget>[
@@ -420,8 +222,8 @@ class _VideoState extends State<CarControlHomeActivity> {
               stream: _streamControllerHeat.stream,
               initialData: 0,
               builder: (context, snapshot) {
-                printLog('isHeated---------------' + isHeated.toString());
-                if (isHeated) {
+                printLog('isHeated---------------' + _isHeated.toString());
+                if (_isHeated) {
                   return new OriToHeat();
                 } else {
                   return new HeatToOri();
@@ -485,7 +287,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                     stream: _streamControllerHeat.stream,
                                     initialData: 0,
                                     builder: (context, snapshot) {
-                                      if (!isHeated) {
+                                      if (!_isHeated) {
                                         return new CircleOff();
                                       } else {
                                         return new CircleOn();
@@ -499,19 +301,19 @@ class _VideoState extends State<CarControlHomeActivity> {
                                         stream: _streamControllerHeat.stream,
                                         initialData: 0,
                                         builder: (context, snapshot) {
-                                          return !isHeated
+                                          return !_isHeated
                                               ? ImageIcon(
-                                                  AssetImage(
-                                                    'assets/images/open_bt_no_selection@3x.png',
-                                                  ),
-                                                  color: Colors.white,
-                                                )
+                                            AssetImage(
+                                              'assets/images/open_bt_no_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          )
                                               : ImageIcon(
-                                                  AssetImage(
-                                                    'assets/images/open_bt_selection@3x.png',
-                                                  ),
-                                                  color: Colors.white,
-                                                );
+                                            AssetImage(
+                                              'assets/images/open_bt_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          );
                                         }),
                                     onPressed: onHeatClickListener,
                                   ),
@@ -522,19 +324,19 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 stream: _streamControllerHeat.stream,
                                 initialData: 0,
                                 builder: (context, snapshot) {
-                                  return !isHeated
+                                  return !_isHeated
                                       ? Text(
-                                          '热车',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        )
+                                    '热车',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  )
                                       : Text(
-                                          '正在热车',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        );
+                                    '正在热车',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  );
                                 }),
                           ],
                         ),
@@ -546,7 +348,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                     stream: _streamControllerWarm.stream,
                                     initialData: 0,
                                     builder: (context, snapshot) {
-                                      if (!isWarmMode) {
+                                      if (!_isWarmed) {
                                         return new CircleOff();
                                       } else {
                                         return new CircleOn();
@@ -560,19 +362,19 @@ class _VideoState extends State<CarControlHomeActivity> {
                                         stream: _streamControllerWarm.stream,
                                         initialData: 0,
                                         builder: (context, snapshot) {
-                                          return !isWarmMode
+                                          return !_isWarmed
                                               ? ImageIcon(
-                                                  AssetImage(
-                                                    'assets/images/heat_bt_no_selection@3x.png',
-                                                  ),
-                                                  color: Colors.white,
-                                                )
+                                            AssetImage(
+                                              'assets/images/heat_bt_no_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          )
                                               : ImageIcon(
-                                                  AssetImage(
-                                                    'assets/images/heat_bt_selection@3x.png',
-                                                  ),
-                                                  color: Colors.white,
-                                                );
+                                            AssetImage(
+                                              'assets/images/heat_bt_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          );
                                         }),
                                     onPressed: onWarmClickListener,
                                   ),
@@ -583,19 +385,19 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 stream: _streamControllerWarm.stream,
                                 initialData: 0,
                                 builder: (context, snapshot) {
-                                  return !isWarmMode
+                                  return !_isWarmed
                                       ? Text(
-                                          '温暖',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        )
+                                    '温暖',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  )
                                       : Text(
-                                          '温暖已开启',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        );
+                                    '温暖已开启',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  );
                                 }),
                           ],
                         ),
@@ -607,7 +409,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                     stream: _streamControllerCold.stream,
                                     initialData: 0,
                                     builder: (context, snapshot) {
-                                      if (!isColdMode) {
+                                      if (!_isCooled) {
                                         return new CircleOff();
                                       } else {
                                         return new CircleOn();
@@ -621,19 +423,19 @@ class _VideoState extends State<CarControlHomeActivity> {
                                         stream: _streamControllerCold.stream,
                                         initialData: 0,
                                         builder: (context, snapshot) {
-                                          return !isColdMode
+                                          return !_isCooled
                                               ? ImageIcon(
-                                                  AssetImage(
-                                                    'assets/images/heat_bt_no_selection@3x.png',
-                                                  ),
-                                                  color: Colors.white,
-                                                )
+                                            AssetImage(
+                                              'assets/images/heat_bt_no_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          )
                                               : ImageIcon(
-                                                  AssetImage(
-                                                    'assets/images/heat_bt_selection@3x.png',
-                                                  ),
-                                                  color: Colors.white,
-                                                );
+                                            AssetImage(
+                                              'assets/images/heat_bt_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          );
                                         }),
                                     onPressed: onColdClickListener,
                                   ),
@@ -644,19 +446,19 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 stream: _streamControllerCold.stream,
                                 initialData: 0,
                                 builder: (context, snapshot) {
-                                  return !isColdMode
+                                  return !_isCooled
                                       ? Text(
-                                          '清凉',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        )
+                                    '清凉',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  )
                                       : Text(
-                                          '清凉已开启',
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        );
+                                    '清凉已开启',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  );
                                 }),
                           ],
                         ),
@@ -669,37 +471,13 @@ class _VideoState extends State<CarControlHomeActivity> {
       ]),
     );
   }
-
-  var isHeated = false;
-  var isWarmMode = false;
-  var isColdMode = false;
-  int durationSeconds = 0;
-
-  void onHeatClickListener() {
-    isHeated = !isHeated;
-//    _addHeatingToStream();
-    _streamControllerHeat.sink.add(++count);
-  }
-
-  void onWarmClickListener() {
-    isWarmMode = !isWarmMode;
-//    _addHeatingToStream();
-    _streamControllerWarm.sink.add(++count);
-  }
-
-  void onColdClickListener() {
-    isColdMode = !isColdMode;
-//    _addHeatingToStream();
-    _streamControllerCold.sink.add(++count);
-  }
-
   _pageCarMode() {
     return Container(
       child: Column(children: <Widget>[
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: _checkAndPlayVideo(_secondPageController),
+          child: null,
         ),
         SizedBox(
           child: Container(
@@ -736,76 +514,144 @@ class _VideoState extends State<CarControlHomeActivity> {
           width: 340,
           child: Container(
 //            color: const Color(0xFF999999),
+            margin: EdgeInsets.only(top: 25),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Container(
-                  width: 270,
-                  color: const Color(0xFF100F27),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      Stack(
-                        children: <Widget>[
-                          StreamBuilder<Object>(
-                              stream: _streamControllerHeat.stream,
-                              initialData: 0,
-                              builder: (context, snapshot) {
-                                if (!isHeated) {
-                                  return new CircleOff();
-                                } else {
-                                  return new CircleOn();
-                                }
-                              }),
-                          Center(
-                            child: IconButton(
-                              padding: EdgeInsets.all(10),
-                              iconSize: 55,
-                              icon: ImageIcon(
-                                AssetImage(
-                                  'assets/images/trail_bt_no_selection@3x.png',
+                    width: 270,
+                    color: const Color(0xFF100F27),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            Stack(
+                              children: <Widget>[
+                                StreamBuilder<Object>(
+                                    stream: _streamControllerWindow.stream,
+                                    initialData: 0,
+                                    builder: (context, snapshot) {
+                                      if (!_isWinClosed) {
+                                        return new CircleOff();
+                                      } else {
+                                        return new CircleOn();
+                                      }
+                                    }),
+                                Center(
+                                  child: IconButton(
+                                    padding: EdgeInsets.all(10),
+                                    iconSize: 55,
+                                    icon: StreamBuilder<Object>(
+                                        stream: _streamControllerWindow.stream,
+                                        initialData: 0,
+                                        builder: (context, snapshot) {
+                                          return !_isWinClosed
+                                              ? ImageIcon(
+                                            AssetImage(
+                                              'assets/images/window_bt_no_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          )
+                                              : ImageIcon(
+                                            AssetImage(
+                                              'assets/images/window_bt_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          );
+                                        }),
+                                    onPressed: onWindowClickListener,
+                                  ),
                                 ),
-                                color: Colors.white,
-                              ),
-                              onPressed: onHeatClickListener,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      Stack(
-                        children: <Widget>[
-                          StreamBuilder<Object>(
-                              stream: _streamControllerWarm.stream,
-                              initialData: 0,
-                              builder: (context, snapshot) {
-                                if (!isWarmMode) {
-                                  return new CircleOff();
-                                } else {
-                                  return new CircleOn();
-                                }
-                              }),
-                          Center(
-                            child: IconButton(
-                              padding: EdgeInsets.all(10),
-                              iconSize: 55,
-                              icon: ImageIcon(
-                                AssetImage(
-                                  'assets/images/window_bt_no_selection@3x.png',
+                            StreamBuilder<Object>(
+                                stream: _streamControllerWindow.stream,
+                                initialData: 0,
+                                builder: (context, snapshot) {
+                                  return !_isWinClosed
+                                      ? Text(
+                                    '开窗',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  )
+                                      : Text(
+                                    '车窗未关',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  );
+                                }),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Stack(
+                              children: <Widget>[
+                                StreamBuilder<Object>(
+                                    stream: _streamControllerTrail.stream,
+                                    initialData: 0,
+                                    builder: (context, snapshot) {
+                                      if (!_isTraClosed) {
+                                        return new CircleOff();
+                                      } else {
+                                        return new CircleOn();
+                                      }
+                                    }),
+                                Center(
+                                  child: IconButton(
+                                    padding: EdgeInsets.all(10),
+                                    iconSize: 55,
+                                    icon: StreamBuilder<Object>(
+                                        stream: _streamControllerTrail.stream,
+                                        initialData: 0,
+                                        builder: (context, snapshot) {
+                                          return !_isTraClosed
+                                              ? ImageIcon(
+                                            AssetImage(
+                                              'assets/images/trail_bt_no_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          )
+                                              : ImageIcon(
+                                            AssetImage(
+                                              'assets/images/trail_bt_selection@3x.png',
+                                            ),
+                                            color: Colors.white,
+                                          );
+                                        }),
+                                    onPressed: onTrailClickListener,
+                                  ),
                                 ),
-                                color: Colors.white,
-                              ),
-                              onPressed: onWarmClickListener,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                            StreamBuilder<Object>(
+                                stream: _streamControllerTrail.stream,
+                                initialData: 0,
+                                builder: (context, snapshot) {
+                                  return !_isTraClosed
+                                      ? Text(
+                                    '开尾门',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  )
+                                      : Text(
+                                    '尾门已开',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white),
+                                  );
+                                }),
+                          ],
+                        ),
+                      ],
+                    )),
               ],
             ),
           ),
@@ -969,17 +815,5 @@ class _VideoState extends State<CarControlHomeActivity> {
         ),
       ),
     );
-  }
-
-  printLog(String s) {
-    print('$TAG : ' + s);
-  }
-
-  Widget _swiperBuilder(BuildContext context, int index) {
-    List<Widget> pageList = new List();
-    pageList.add(_pageUnlock());
-    pageList.add(_pageCarControl());
-    pageList.add(_pageCarMode());
-    return pageList[index];
   }
 }
