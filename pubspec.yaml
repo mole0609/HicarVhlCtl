@@ -59,6 +59,8 @@ flutter:
     - assets/images/ori_warm/
     - assets/images/unlock_lock/
     - assets/images/warm_cool/
+    - assets/images/ori_openwin/
+    - assets/images/ori_opentra/
     - assets/videos/page_1/
     - assets/videos/page_2/
     - assets/videos/page_3/

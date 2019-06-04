@@ -6,9 +6,13 @@ import 'package:flutter_app_video_demo/animations/animation_heat_warm.dart';
 import 'package:flutter_app_video_demo/animations/animation_lock_unlock.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_heat.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_warm.dart';
+import 'package:flutter_app_video_demo/animations/animation_tra_close.dart';
+import 'package:flutter_app_video_demo/animations/animation_tra_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_unlock_lock.dart';
 import 'package:flutter_app_video_demo/animations/animation_warm_heat.dart';
 import 'package:flutter_app_video_demo/animations/animation_warm_ori.dart';
+import 'package:flutter_app_video_demo/animations/animation_win_close.dart';
+import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'dart:async';
@@ -26,7 +30,8 @@ class _VideoState extends State<CarControlHomeActivity> {
   final String TAG = '[CarContrlLog]';
   int count = 0;
 
-  StreamController<int> _streamStatus,
+  StreamController<int> _streamPage2Status,
+      _streamPage3Status,
       _streamControllerLock,
       _streamControllerHeat,
       _streamControllerWarm,
@@ -37,18 +42,25 @@ class _VideoState extends State<CarControlHomeActivity> {
   ImagesAnimation imagesAnimation;
   ImagesAnimationEntry imagesAnimationEntry;
 
-  int status = 0;
+  int page2Status = 0;
+  int page3Status = 0;
   static const int ACTION_HEATING = 1;
   static const int ACTION_UNHEATING = 2;
+
   static const int ACTION_HEATED_WARMING = 3;
   static const int ACTION_HEATED_UNWARMING = 4;
   static const int ACTION_UNHEATING_WARMED = 5;
   static const int ACTION_HEATING_WARMED = 6;
 
-  static const int ACTION_HEAT_COOLED = 7;
-  static const int ACTION_HEAT_UNCOOLED = 8;
-  static const int ACTION_UNHEAT_COOLED = 9;
-  static const int ACTION_UNHEAT_UNCOOLED = 10;
+  static const int ACTION_HEATED_COOLING = 7;
+  static const int ACTION_HEATED_UNCOOLING = 8;
+  static const int ACTION_UNHEATING_COOLED = 9;
+  static const int ACTION_UNHEATING_UNCOOLED = 10;
+
+  static const int ACTION_OPEN_WINDOW = 30;
+  static const int ACTION_CLOSE_WINDOW = 31;
+  static const int ACTION_OPEN_TRAIL = 32;
+  static const int ACTION_CLOSE_TRAIL = 33;
 
   bool _isLocked = true;
 
@@ -61,8 +73,10 @@ class _VideoState extends State<CarControlHomeActivity> {
   bool _isCooling = false;
   bool _isCooled = false;
 
-  bool _isWinClosed = false;
-  bool _isTraClosed = false;
+  bool _isWinOpening = false;
+  bool _isTraOpening = false;
+  bool _isWinOpened = false;
+  bool _isTraOpened = false;
 
   _VideoState() {
     printLog('_VideoState--------------');
@@ -82,7 +96,8 @@ class _VideoState extends State<CarControlHomeActivity> {
   void initState() {
     super.initState();
     printLog('initState-----------------');
-    _streamStatus = StreamController.broadcast();
+    _streamPage2Status = StreamController.broadcast();
+    _streamPage3Status = StreamController.broadcast();
     _streamControllerLock = StreamController.broadcast();
     _streamControllerHeat = StreamController.broadcast();
     _streamControllerWarm = StreamController.broadcast();
@@ -94,7 +109,8 @@ class _VideoState extends State<CarControlHomeActivity> {
   @override
   void dispose() {
     printLog('dispose-----------------');
-    _streamStatus.close();
+    _streamPage2Status.close();
+    _streamPage3Status.close();
     _streamControllerLock.close();
     _streamControllerHeat.close();
     _streamControllerWarm.close();
@@ -112,34 +128,31 @@ class _VideoState extends State<CarControlHomeActivity> {
   void onHeatClickListener() {
     _isHeating = !_isHeating;
     _streamControllerHeat.sink.add(++count);
-    _streamStatus.sink.add(getStatus());
+    _streamPage2Status.sink.add(getPage2Status());
   }
 
   void onWarmClickListener() {
     _isWarming = !_isWarming;
     _streamControllerWarm.sink.add(++count);
-    _streamStatus.sink.add(getStatus());
+    _streamPage2Status.sink.add(getPage2Status());
   }
 
   void onCoolClickListener() {
     _isCooling = !_isCooling;
-//    _addHeatingToStream();
     _streamControllerCool.sink.add(++count);
-    _streamStatus.sink.add(getStatus());
+    _streamPage2Status.sink.add(getPage2Status());
   }
 
   void onWindowClickListener() {
-    _isWinClosed = !_isWinClosed;
-//    _addHeatingToStream();
+    _isWinOpening = !_isWinOpening;
     _streamControllerWindow.sink.add(++count);
-    _streamStatus.sink.add(getStatus());
+    _streamPage3Status.sink.add(getPage3Status());
   }
 
   void onTrailClickListener() {
-    _isTraClosed = !_isTraClosed;
-//    _addHeatingToStream();
+    _isTraOpening = !_isTraOpening;
     _streamControllerTrail.sink.add(++count);
-    _streamStatus.sink.add(getStatus());
+    _streamPage3Status.sink.add(getPage3Status());
   }
 
   _getCurrentTime() {
@@ -254,39 +267,59 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
   }
 
-  int getStatus() {
+  int getPage2Status() {
     if (_isHeating && !_isWarming && !_isCooling && !_isHeated) {
       _isHeated = true;
-      status = ACTION_HEATING; //1g
+      page2Status = ACTION_HEATING; //1g
     } else if (!_isHeating && !_isWarming && !_isCooling && _isHeated) {
       _isHeated = false;
-      status = ACTION_UNHEATING; //2g
+      page2Status = ACTION_UNHEATING; //2g
     } else if (_isHeated && _isWarming && !_isCooling && !_isWarmed) {
       _isWarmed = true;
-      status = ACTION_HEATED_WARMING; //3g
+      page2Status = ACTION_HEATED_WARMING; //3g
     } else if (_isHeated && !_isWarming && !_isCooling) {
       _isWarmed = false;
-      status = ACTION_HEATED_UNWARMING; //4
+      page2Status = ACTION_HEATED_UNWARMING; //4
     } else if (!_isHeating && _isWarmed && !_isCooling && _isHeated) {
       _isHeated = false;
-      status = ACTION_UNHEATING_WARMED; //5
+      page2Status = ACTION_UNHEATING_WARMED; //5
     } else if (_isHeating && _isWarmed && !_isCooling && !_isHeated) {
-      status = ACTION_HEATING_WARMED; //6
+      page2Status = ACTION_HEATING_WARMED; //6
     } else if (false) {
-      status = ACTION_HEAT_COOLED; //7
+      page2Status = ACTION_HEATED_COOLING; //7
     } else if (false) {
-      status = ACTION_HEAT_UNCOOLED; //8
+      page2Status = ACTION_HEATED_UNCOOLING; //8
     } else if (false) {
-      status = ACTION_UNHEAT_COOLED; //9
+      page2Status = ACTION_UNHEATING_COOLED; //9
     } else if (false) {
-      status = ACTION_UNHEAT_UNCOOLED; //10
+      page2Status = ACTION_UNHEATING_UNCOOLED; //10
     }
 
-    printLog('status---' +
-        status.toString() +
+    printLog('page2Status---' +
+        page2Status.toString() +
         '  _isHeating---' +
         _isHeated.toString());
-    return status;
+    return page2Status;
+  }
+
+  int getPage3Status() {
+    if (_isWinOpening && !_isWinOpened && !_isTraOpened) {
+      _isWinOpened = true;
+//      _isTraOpened = false;
+      page3Status = ACTION_OPEN_WINDOW;
+    } else if (!_isWinOpening && _isWinOpened && !_isTraOpened) {
+      _isWinOpened = false;
+      page3Status = ACTION_CLOSE_WINDOW;
+    } else if (_isTraOpening && !_isWinOpened && !_isTraOpened) {
+      _isTraOpened = true;
+      page3Status = ACTION_OPEN_TRAIL;
+    } else if (!_isTraOpening && !_isWinOpened && _isTraOpened) {
+      _isTraOpened = false;
+      page3Status = ACTION_CLOSE_TRAIL;
+    }
+
+    printLog('page3Status---' + page3Status.toString());
+    return page3Status;
   }
 
   _pageCarControl() {
@@ -296,7 +329,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           height: 230.0,
           width: 328.0,
           child: StreamBuilder<Object>(
-              stream: _streamStatus.stream,
+              stream: _streamPage2Status.stream,
               initialData: 0,
               builder: (context, snapshot) {
                 printLog('default status : snapshot.data---' +
@@ -318,18 +351,18 @@ class _VideoState extends State<CarControlHomeActivity> {
                     return new WarmToOri(); //g
                     break;
                   case ACTION_HEATING_WARMED: //6
-                    return new OriToHeat();//g
+                    return new OriToHeat(); //g
                     break;
-                  case ACTION_HEAT_COOLED: //7
+                  case ACTION_HEATED_COOLING: //7
 //                    return new WarmAndHeat();
                     break;
-                  case ACTION_HEAT_UNCOOLED: //8
+                  case ACTION_HEATED_UNCOOLING: //8
 //                    return new WarmAndHeat();
                     break;
-                  case ACTION_UNHEAT_COOLED: //9
+                  case ACTION_UNHEATING_COOLED: //9
 //                    return new WarmAndHeat();
                     break;
-                  case ACTION_UNHEAT_UNCOOLED: //10
+                  case ACTION_UNHEATING_UNCOOLED: //10
 //                    return new WarmAndHeat();
                     break;
                   default:
@@ -585,7 +618,29 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: null,
+          child: StreamBuilder<Object>(
+              stream: _streamPage3Status.stream,
+              initialData: 0,
+              builder: (context, snapshot) {
+                printLog('default _streamPage3Status : snapshot.data---' +
+                    snapshot.data.toString());
+                switch (snapshot.data) {
+                  case ACTION_OPEN_WINDOW:
+                    return new WindowOpen();
+                    break;
+                  case ACTION_CLOSE_WINDOW:
+                    return new windowClose();
+                    break;
+                  case ACTION_OPEN_TRAIL:
+                    return new TrailOpen();
+                    break;
+                  case ACTION_CLOSE_TRAIL:
+                    return new TrailClose();
+                    break;
+                  default:
+                    return new windowClose();
+                }
+              }),
         ),
         SizedBox(
           child: Container(
@@ -644,7 +699,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                     stream: _streamControllerWindow.stream,
                                     initialData: 0,
                                     builder: (context, snapshot) {
-                                      if (!_isWinClosed) {
+                                      if (!_isWinOpening) {
                                         return new CircleOff();
                                       } else {
                                         return new CircleOn();
@@ -658,7 +713,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                         stream: _streamControllerWindow.stream,
                                         initialData: 0,
                                         builder: (context, snapshot) {
-                                          return !_isWinClosed
+                                          return !_isWinOpening
                                               ? ImageIcon(
                                                   AssetImage(
                                                     'assets/images/window_bt_no_selection@3x.png',
@@ -681,7 +736,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 stream: _streamControllerWindow.stream,
                                 initialData: 0,
                                 builder: (context, snapshot) {
-                                  return !_isWinClosed
+                                  return !_isWinOpening
                                       ? Text(
                                           '开窗',
                                           style: TextStyle(
@@ -705,7 +760,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                     stream: _streamControllerTrail.stream,
                                     initialData: 0,
                                     builder: (context, snapshot) {
-                                      if (!_isTraClosed) {
+                                      if (!_isTraOpening) {
                                         return new CircleOff();
                                       } else {
                                         return new CircleOn();
@@ -719,7 +774,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                         stream: _streamControllerTrail.stream,
                                         initialData: 0,
                                         builder: (context, snapshot) {
-                                          return !_isTraClosed
+                                          return !_isTraOpening
                                               ? ImageIcon(
                                                   AssetImage(
                                                     'assets/images/trail_bt_no_selection@3x.png',
@@ -742,7 +797,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                 stream: _streamControllerTrail.stream,
                                 initialData: 0,
                                 builder: (context, snapshot) {
-                                  return !_isTraClosed
+                                  return !_isTraOpening
                                       ? Text(
                                           '开尾门',
                                           style: TextStyle(
