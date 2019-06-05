@@ -93,6 +93,10 @@ class _VideoState extends State<CarControlHomeActivity> {
   bool _isWinOpened = false;
   bool _isTraOpened = false;
 
+  Image _lastPage2Image = Image(
+    image: AssetImage('assets/images/ori_heat/1原角度——热车（开）_0000.jpg'),
+  );
+
   _VideoState() {
     printLog('_VideoState--------------');
     imagesAnimation = new ImagesAnimation(
@@ -217,7 +221,8 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('assets/images/buttons/home_icon_refresh@3x.png'),
+                    image: AssetImage(
+                        'assets/images/buttons/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
@@ -287,46 +292,78 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   int getPage2Status() {
-      //开启热车 温暖关 清凉关
+    //开启热车 温暖关 清凉关
     if (_isHeating && !_isWarmed && !_isCooled && !_isHeated) {
       _isHeated = true;
-      page2Status = ACTION_HEATING;//1
+      page2Status = ACTION_HEATING; //1
       //关闭热车 温暖关 清凉关
     } else if (!_isHeating && !_isWarmed && !_isCooled && _isHeated) {
       _isHeated = false;
-      page2Status = ACTION_UNHEATING;//2
+      page2Status = ACTION_UNHEATING; //2
       //开启温暖 热车开 清凉关
-    } else if (_isHeated && _isWarming && !_isCooling && !_isWarmed && !_isCooled) {
+    } else if (_isHeated &&
+        _isWarming &&
+        !_isCooling &&
+        !_isWarmed &&
+        !_isCooled) {
       _isWarmed = true;
-      page2Status = ACTION_HEATED_WARMING;//21
+      page2Status = ACTION_HEATED_WARMING; //21
       //关闭温暖 热车开 清凉关
-    } else if (_isHeated && !_isWarming && !_isCooling && _isWarmed && !_isCooled) {
+    } else if (_isHeated &&
+        !_isWarming &&
+        !_isCooling &&
+        _isWarmed &&
+        !_isCooled) {
       _isWarmed = false;
-      page2Status = ACTION_HEATED_UNWARMING;//22
+      page2Status = ACTION_HEATED_UNWARMING; //22
       //开启温暖 热车关 清凉关
-    } else if (!_isHeated && !_isWarmed && !_isCooling && _isWarming && !_isCooled) {
+    } else if (!_isHeated &&
+        !_isWarmed &&
+        !_isCooling &&
+        _isWarming &&
+        !_isCooled) {
       _isWarmed = true;
-      page2Status = ACTION_UNHEATED_WARM;//23
+      page2Status = ACTION_UNHEATED_WARM; //23
       //关闭温暖 热车关 清凉关
-    } else if (!_isHeated && _isWarmed && !_isCooling && !_isWarming && !_isCooled) {
+    } else if (!_isHeated &&
+        _isWarmed &&
+        !_isCooling &&
+        !_isWarming &&
+        !_isCooled) {
       _isWarmed = false;
-      page2Status = ACTION_UNHEATED_UNWARM;//24
+      page2Status = ACTION_UNHEATED_UNWARM; //24
       //开启清凉 热车开 温暖关
-    } else if (_isHeated && _isCooling && !_isCooled && !_isWarmed && !_isWarming) {
+    } else if (_isHeated &&
+        _isCooling &&
+        !_isCooled &&
+        !_isWarmed &&
+        !_isWarming) {
       _isCooled = true;
-      page2Status = ACTION_HEATED_COOLING;//25
+      page2Status = ACTION_HEATED_COOLING; //25
       //关闭清凉 热车开 温暖关
-    } else if (_isHeated && !_isCooling && _isCooled && !_isWarmed && !_isWarming) {
+    } else if (_isHeated &&
+        !_isCooling &&
+        _isCooled &&
+        !_isWarmed &&
+        !_isWarming) {
       _isCooled = false;
-      page2Status = ACTION_HEATED_UNCOOLING;//26
+      page2Status = ACTION_HEATED_UNCOOLING; //26
       //开启清凉 热车关 温暖关
-    } else if (!_isHeated && _isCooling && !_isCooled && !_isWarmed && !_isWarming) {
+    } else if (!_isHeated &&
+        _isCooling &&
+        !_isCooled &&
+        !_isWarmed &&
+        !_isWarming) {
       _isCooled = true;
-      page2Status = ACTION_UNHEATED_COOLING;//27
+      page2Status = ACTION_UNHEATED_COOLING; //27
       //关闭清凉 热车关 温暖关
-    } else if (!_isHeated && !_isCooling && _isCooled && !_isWarmed && !_isWarming) {
+    } else if (!_isHeated &&
+        !_isCooling &&
+        _isCooled &&
+        !_isWarmed &&
+        !_isWarming) {
       _isCooled = false;
-      page2Status = ACTION_UNHEATED_UNCOOLING;//28
+      page2Status = ACTION_UNHEATED_UNCOOLING; //28
       //温暖变清凉
     } else if (_isCooling && !_isCooled && _isWarmed) {
       _isCooled = true;
@@ -391,53 +428,76 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: StreamBuilder<Object>(
-              stream: _streamPage2Status.stream,
-              initialData: 0,
-              builder: (context, snapshot) {
-                printLog('default status : snapshot.data---' +
-                    snapshot.data.toString());
-                switch (snapshot.data) {
-                  case ACTION_UNHEATING:
-                    return new HeatToOri();
-                    break;
-                  case ACTION_HEATING:
-                    return new OriToHeat();
-                    break;
-                  case ACTION_HEATED_WARMING:
-                    return new HeatedAndWarm();
-                    break;
-                  case ACTION_HEATED_UNWARMING:
-                    return new HeatedAndUnwarm();
-                    break;
-                  case ACTION_UNHEATED_WARM:
-                    return new OriToWarm();
-                    break;
-                  case ACTION_UNHEATED_UNWARM:
-                    return new WarmToOri();
-                    break;
-                  case ACTION_HEATED_COOLING:
-                    return new HeatedAndCool();
-                    break;
-                  case ACTION_HEATED_UNCOOLING:
-                    return new HeatedAndUncool();
-                    break;
-                  case ACTION_UNHEATED_COOLING:
-                    return new OriToCool();
-                    break;
-                  case ACTION_UNHEATED_UNCOOLING:
-                    return new CoolToOri();
-                    break;
-                  case ACTION_WARM_TO_COOL:
-                    return new WarmToCool();
-                    break;
-                  case ACTION_COOL_TO_WARM:
-                    return new CoolToWarm();
-                    break;
-                  default:
-                    return new HeatToOri();
-                }
-              }),
+          child: Stack(
+            children: <Widget>[
+              StreamBuilder<Object>(
+                  stream: _streamPage2Status.stream,
+                  initialData: 0,
+                  builder: (context, snapshot) {
+                    printLog('default status : snapshot.data---' +
+                        snapshot.data.toString());
+                    switch (snapshot.data) {
+                      case ACTION_UNHEATING:
+                        _lastPage2Image = Image(image: AssetImage('assets/images/ori_heat/1原角度——热车（开）_0000.jpg'),);
+                        return new HeatToOri();
+                        break;
+                      case ACTION_HEATING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_heat/1原角度——热车（开）_00019.jpg'),
+                        );
+                        return new OriToHeat();
+                        break;
+                      case ACTION_HEATED_WARMING:
+                        return new HeatedAndWarm();
+                        break;
+                      case ACTION_HEATED_UNWARMING:
+                        return new HeatedAndUnwarm();
+                        break;
+                      case ACTION_UNHEATED_WARM:
+                        return new OriToWarm();
+                        break;
+                      case ACTION_UNHEATED_UNWARM:
+                        return new WarmToOri();
+                        break;
+                      case ACTION_HEATED_COOLING:
+                        return new HeatedAndCool();
+                        break;
+                      case ACTION_HEATED_UNCOOLING:
+                        return new HeatedAndUncool();
+                        break;
+                      case ACTION_UNHEATED_COOLING:
+                        return new OriToCool();
+                        break;
+                      case ACTION_UNHEATED_UNCOOLING:
+                        return new CoolToOri();
+                        break;
+                      case ACTION_WARM_TO_COOL:
+                        return new WarmToCool();
+                        break;
+                      case ACTION_COOL_TO_WARM:
+                        return new CoolToWarm();
+                        break;
+                      default:
+                        return _lastPage2Image;
+                    }
+                  }),
+              StreamBuilder<Object>(
+                  stream: _streamControllerLock.stream,
+                  builder: (context, snapshot) {
+                    return Center(
+                      child: _isLocked
+                          ? Image(
+                              image:
+                                  AssetImage('assets/images/buttons/1上锁.png'),
+                              fit: BoxFit.contain,
+                              color: Colors.white,
+                            )
+                          : null,
+                    );
+                  }),
+            ],
+          ),
         ),
         SizedBox(
           child: Container(
@@ -452,7 +512,8 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('assets/images/buttons/home_icon_refresh@3x.png'),
+                    image: AssetImage(
+                        'assets/images/buttons/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
@@ -687,42 +748,60 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           height: 230.0,
           width: 328.0,
-          child: StreamBuilder<Object>(
-              stream: _streamPage3Status.stream,
-              initialData: 0,
-              builder: (context, snapshot) {
-                printLog('default _streamPage3Status : snapshot.data---' +
-                    snapshot.data.toString());
-                switch (snapshot.data) {
-                  case ACTION_OPEN_WINDOW:
-                    return new WindowOpen();
-                    break;
-                  case ACTION_CLOSE_WINDOW:
-                    return new windowClose();
-                    break;
-                  case ACTION_OPEN_TRAIL:
-                    return new TrailOpen();
-                    break;
-                  case ACTION_CLOSE_TRAIL:
-                    return new TrailClose();
-                    break;
-                  case ACTION_WINED_TRA:
-                    return new WinedAndTra();
-                    break;
-                  case ACTION_WINED_UNTRA:
-                    return new WinedAndUntra();
-                    break;
-                  case ACTION_TRAED_WIN:
-                    return new TraedAndWin();
-                    break;
-                  case ACTION_TRAED_UNWIN:
-                    return new TraedAndUnwin();
-                    break;
-                  default:
-                    printLog('default');
-                    return new windowClose();
-                }
-              }),
+          child: Stack(
+            children: <Widget>[
+              StreamBuilder<Object>(
+                  stream: _streamPage3Status.stream,
+                  initialData: 0,
+                  builder: (context, snapshot) {
+                    printLog('default _streamPage3Status : snapshot.data---' +
+                        snapshot.data.toString());
+                    switch (snapshot.data) {
+                      case ACTION_OPEN_WINDOW:
+                        return new WindowOpen();
+                        break;
+                      case ACTION_CLOSE_WINDOW:
+                        return new windowClose();
+                        break;
+                      case ACTION_OPEN_TRAIL:
+                        return new TrailOpen();
+                        break;
+                      case ACTION_CLOSE_TRAIL:
+                        return new TrailClose();
+                        break;
+                      case ACTION_WINED_TRA:
+                        return new WinedAndTra();
+                        break;
+                      case ACTION_WINED_UNTRA:
+                        return new WinedAndUntra();
+                        break;
+                      case ACTION_TRAED_WIN:
+                        return new TraedAndWin();
+                        break;
+                      case ACTION_TRAED_UNWIN:
+                        return new TraedAndUnwin();
+                        break;
+                      default:
+                        printLog('default');
+                        return new windowClose();
+                    }
+                  }),
+              StreamBuilder<Object>(
+                  stream: _streamControllerLock.stream,
+                  builder: (context, snapshot) {
+                    return Center(
+                      child: _isLocked
+                          ? Image(
+                              image:
+                                  AssetImage('assets/images/buttons/1上锁.png'),
+                              fit: BoxFit.contain,
+                              color: Colors.white,
+                            )
+                          : null,
+                    );
+                  }),
+            ],
+          ),
         ),
         SizedBox(
           child: Container(
@@ -737,7 +816,8 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('assets/images/buttons/home_icon_refresh@3x.png'),
+                    image: AssetImage(
+                        'assets/images/buttons/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
