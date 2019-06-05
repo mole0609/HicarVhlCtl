@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_video_demo/animations/animation_circle_on.dart';
 import 'package:flutter_app_video_demo/animations/animation_circle_off.dart';
+import 'package:flutter_app_video_demo/animations/animation_cool_heat.dart';
+import 'package:flutter_app_video_demo/animations/animation_cool_ori.dart';
+import 'package:flutter_app_video_demo/animations/animation_cool_warm.dart';
+import 'package:flutter_app_video_demo/animations/animation_heat_cool.dart';
 import 'package:flutter_app_video_demo/animations/animation_heat_ori.dart';
 import 'package:flutter_app_video_demo/animations/animation_heat_warm.dart';
 import 'package:flutter_app_video_demo/animations/animation_lock_unlock.dart';
+import 'package:flutter_app_video_demo/animations/animation_ori_cool.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_heat.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_warm.dart';
 import 'package:flutter_app_video_demo/animations/animation_tra_close.dart';
@@ -11,6 +16,7 @@ import 'package:flutter_app_video_demo/animations/animation_tra_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_traed_unwin.dart';
 import 'package:flutter_app_video_demo/animations/animation_traed_win.dart';
 import 'package:flutter_app_video_demo/animations/animation_unlock_lock.dart';
+import 'package:flutter_app_video_demo/animations/animation_warm_cool.dart';
 import 'package:flutter_app_video_demo/animations/animation_warm_heat.dart';
 import 'package:flutter_app_video_demo/animations/animation_warm_ori.dart';
 import 'package:flutter_app_video_demo/animations/animation_win_close.dart';
@@ -48,18 +54,19 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   int page2Status = 0;
   int page3Status = 0;
-  static const int ACTION_HEATING = 1;
-  static const int ACTION_UNHEATING = 2;
 
-  static const int ACTION_HEATED_WARMING = 3;
-  static const int ACTION_HEATED_UNWARMING = 4;
-  static const int ACTION_UNHEATING_WARMED = 5;
-  static const int ACTION_HEATING_WARMED = 6;
-
-  static const int ACTION_HEATED_COOLING = 7;
-  static const int ACTION_HEATED_UNCOOLING = 8;
-  static const int ACTION_UNHEATING_COOLED = 9;
-  static const int ACTION_UNHEATING_UNCOOLED = 10;
+  static const int ACTION_HEATING = 10;
+  static const int ACTION_UNHEATING = 20;
+  static const int ACTION_HEATED_WARMING = 21;
+  static const int ACTION_HEATED_UNWARMING = 22;
+  static const int ACTION_UNHEATED_WARM = 23;
+  static const int ACTION_UNHEATED_UNWARM = 24;
+  static const int ACTION_HEATED_COOLING = 25;
+  static const int ACTION_HEATED_UNCOOLING = 26;
+  static const int ACTION_UNHEATED_COOLING = 27;
+  static const int ACTION_UNHEATED_UNCOOLING = 28;
+  static const int ACTION_WARM_TO_COOL = 29;
+  static const int ACTION_COOL_TO_WARM = 30;
 
   static const int ACTION_OPEN_WINDOW = 30;
   static const int ACTION_CLOSE_WINDOW = 31;
@@ -276,31 +283,64 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   int getPage2Status() {
-    if (_isHeating && !_isWarming && !_isCooling && !_isHeated) {
+      //开启热车 温暖关 清凉关
+    if (_isHeating && !_isWarmed && !_isCooled && !_isHeated) {
       _isHeated = true;
-      page2Status = ACTION_HEATING; //1g
-    } else if (!_isHeating && !_isWarming && !_isCooling && _isHeated) {
+      page2Status = ACTION_HEATING;//1
+      //关闭热车 温暖关 清凉关
+    } else if (!_isHeating && !_isWarmed && !_isCooled && _isHeated) {
       _isHeated = false;
-      page2Status = ACTION_UNHEATING; //2g
-    } else if (_isHeated && _isWarming && !_isCooling && !_isWarmed) {
+      page2Status = ACTION_UNHEATING;//2
+      //开启温暖 热车开 清凉关
+    } else if (_isHeated && _isWarming && !_isCooling && !_isWarmed && !_isCooled) {
       _isWarmed = true;
-      page2Status = ACTION_HEATED_WARMING; //3g
-    } else if (_isHeated && !_isWarming && !_isCooling) {
+      page2Status = ACTION_HEATED_WARMING;//21
+      //关闭温暖 热车开 清凉关
+    } else if (_isHeated && !_isWarming && !_isCooling && _isWarmed && !_isCooled) {
       _isWarmed = false;
-      page2Status = ACTION_HEATED_UNWARMING; //4
-    } else if (!_isHeating && _isWarmed && !_isCooling && _isHeated) {
-      _isHeated = false;
-      page2Status = ACTION_UNHEATING_WARMED; //5
-    } else if (_isHeating && _isWarmed && !_isCooling && !_isHeated) {
-      page2Status = ACTION_HEATING_WARMED; //6
-    } else if (false) {
-      page2Status = ACTION_HEATED_COOLING; //7
-    } else if (false) {
-      page2Status = ACTION_HEATED_UNCOOLING; //8
-    } else if (false) {
-      page2Status = ACTION_UNHEATING_COOLED; //9
-    } else if (false) {
-      page2Status = ACTION_UNHEATING_UNCOOLED; //10
+      page2Status = ACTION_HEATED_UNWARMING;//22
+      //开启温暖 热车关 清凉关
+    } else if (!_isHeated && !_isWarmed && !_isCooling && _isWarming && !_isCooled) {
+      _isWarmed = true;
+      page2Status = ACTION_UNHEATED_WARM;//23
+      //关闭温暖 热车关 清凉关
+    } else if (!_isHeated && _isWarmed && !_isCooling && !_isWarming && !_isCooled) {
+      _isWarmed = false;
+      page2Status = ACTION_UNHEATED_UNWARM;//24
+      //开启清凉 热车开 温暖关
+    } else if (_isHeated && _isCooling && !_isCooled && !_isWarmed && !_isWarming) {
+      _isCooled = true;
+      page2Status = ACTION_HEATED_COOLING;//25
+      //关闭清凉 热车开 温暖关
+    } else if (_isHeated && !_isCooling && _isCooled && !_isWarmed && !_isWarming) {
+      _isCooled = false;
+      page2Status = ACTION_HEATED_UNCOOLING;//26
+      //开启清凉 热车关 温暖关
+    } else if (!_isHeated && _isCooling && !_isCooled && !_isWarmed && !_isWarming) {
+      _isCooled = true;
+      page2Status = ACTION_UNHEATED_COOLING;//27
+      //关闭清凉 热车关 温暖关
+    } else if (!_isHeated && !_isCooling && _isCooled && !_isWarmed && !_isWarming) {
+      _isCooled = false;
+      page2Status = ACTION_UNHEATED_UNCOOLING;//28
+      //温暖变清凉
+    } else if (_isCooling && !_isCooled && _isWarmed) {
+      _isCooled = true;
+      _isWarmed = false;
+      page2Status = ACTION_WARM_TO_COOL; //29
+      //清凉变温暖
+    } else if (_isWarming && !_isWarmed && _isCooled) {
+      _isCooled = false;
+      _isWarmed = true;
+      page2Status = ACTION_COOL_TO_WARM; //30
+      //取消温暖
+    } else if (!_isWarming && _isWarmed) {
+      _isWarmed = false;
+      page2Status = ACTION_COOL_TO_WARM; //30
+      //取消清凉
+    } else if (!_isCooling && _isCooled) {
+      _isCooled = false;
+      page2Status = ACTION_COOL_TO_WARM; //30
     }
 
     printLog('page2Status---' +
@@ -354,35 +394,41 @@ class _VideoState extends State<CarControlHomeActivity> {
                 printLog('default status : snapshot.data---' +
                     snapshot.data.toString());
                 switch (snapshot.data) {
-                  case ACTION_UNHEATING: //1
-                    return new HeatToOri(); //g
+                  case ACTION_UNHEATING:
+                    return new HeatToOri();
                     break;
-                  case ACTION_HEATING: //2
-                    return new OriToHeat(); //g
+                  case ACTION_HEATING:
+                    return new OriToHeat();
                     break;
-                  case ACTION_HEATED_WARMING: //3
-                    return new HeatAndWarm(); //g
+                  case ACTION_HEATED_WARMING:
+                    return new HeatedAndWarm();
                     break;
-                  case ACTION_HEATED_UNWARMING: //4
-                    return new WarmAndHeat(); //G
+                  case ACTION_HEATED_UNWARMING:
+                    return new HeatedAndUnwarm();
                     break;
-                  case ACTION_UNHEATING_WARMED: //5
-                    return new WarmToOri(); //g
+                  case ACTION_UNHEATED_WARM:
+                    return new OriToWarm();
                     break;
-                  case ACTION_HEATING_WARMED: //6
-                    return new OriToHeat(); //g
+                  case ACTION_UNHEATED_UNWARM:
+                    return new WarmToOri();
                     break;
-                  case ACTION_HEATED_COOLING: //7
-//                    return new WarmAndHeat();
+                  case ACTION_HEATED_COOLING:
+                    return new HeatedAndCool();
                     break;
-                  case ACTION_HEATED_UNCOOLING: //8
-//                    return new WarmAndHeat();
+                  case ACTION_HEATED_UNCOOLING:
+                    return new HeatedAndUncool();
                     break;
-                  case ACTION_UNHEATING_COOLED: //9
-//                    return new WarmAndHeat();
+                  case ACTION_UNHEATED_COOLING:
+                    return new OriToCool();
                     break;
-                  case ACTION_UNHEATING_UNCOOLED: //10
-//                    return new WarmAndHeat();
+                  case ACTION_UNHEATED_UNCOOLING:
+                    return new CoolToOri();
+                    break;
+                  case ACTION_WARM_TO_COOL:
+                    return new WarmToCool();
+                    break;
+                  case ACTION_COOL_TO_WARM:
+                    return new CoolToWarm();
                     break;
                   default:
                     return new HeatToOri();
@@ -867,7 +913,7 @@ class _VideoState extends State<CarControlHomeActivity> {
             padding: EdgeInsets.only(right: 15),
             child: ImageIcon(
               AssetImage(
-                'assets/images/buttons/buttons/scan.png',
+                'assets/images/buttons/scan.png',
               ),
               color: Colors.white,
               size: 20,

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_video_demo/utils/image_util.dart';
 
-class HeatAndWarm extends StatefulWidget {
-  _HeatAndWarmState createState() => new _HeatAndWarmState();
+class HeatedAndWarm extends StatefulWidget {
+  _HeatedAndWarmState createState() => new _HeatedAndWarmState();
 }
 
-class _HeatAndWarmState extends State<HeatAndWarm>
+class _HeatedAndWarmState extends State<HeatedAndWarm>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;

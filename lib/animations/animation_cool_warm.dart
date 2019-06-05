@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_video_demo/utils/image_util.dart';
 
-class HeatedAndUnwarm extends StatefulWidget {
-  _HeatedAndUnwarmState createState() => new _HeatedAndUnwarmState();
+class CoolToWarm extends StatefulWidget {
+  _CoolToWarmState createState() => new _CoolToWarmState();
 }
 
-class _HeatedAndUnwarmState extends State<HeatedAndUnwarm>
+class _CoolToWarmState extends State<CoolToWarm>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
@@ -40,7 +40,7 @@ class AnimatedDismiss extends AnimatedWidget {
         child: new ImagesAnimation(
           durationSeconds: 2,
           entry: ImagesAnimationEntry(
-              43, 0, 'assets/images/heat_warm/2热车（开）——温暖_000%s.jpg'),
+              32, 0, 'assets/images/warm_cool/11温暖 ——- 清凉_000%s.jpg'),
           h: 230,
           w: 328,
         ),
