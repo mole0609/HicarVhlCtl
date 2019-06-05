@@ -52,8 +52,12 @@ class _VideoState extends State<CarControlHomeActivity> {
   ImagesAnimation imagesAnimation;
   ImagesAnimationEntry imagesAnimationEntry;
 
+  int page1Status = 0;
   int page2Status = 0;
   int page3Status = 0;
+
+  static const int ACTION_LOCK = 1;
+  static const int ACTION_UNLOCK = 2;
 
   static const int ACTION_HEATING = 10;
   static const int ACTION_UNHEATING = 20;
@@ -93,8 +97,16 @@ class _VideoState extends State<CarControlHomeActivity> {
   bool _isWinOpened = false;
   bool _isTraOpened = false;
 
+  Image _lastPage1Image = Image(
+    image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
+  );
+
   Image _lastPage2Image = Image(
     image: AssetImage('assets/images/ori_heat/1原角度——热车（开）_0000.jpg'),
+  );
+
+  Image _lastPage3Image = Image(
+    image: AssetImage('assets/images/ori_openwin/1原角度——开窗_0000.jpg'),
   );
 
   _VideoState() {
@@ -141,7 +153,7 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   void _onLockClickLister() {
     _isLocked = !_isLocked;
-    _streamControllerLock.sink.add(++count);
+    _streamControllerLock.sink.add(getPage1Status());
   }
 
   void onHeatClickListener() {
@@ -201,10 +213,21 @@ class _VideoState extends State<CarControlHomeActivity> {
               stream: _streamControllerLock.stream,
               initialData: 0,
               builder: (context, snapshot) {
-                if (!_isLocked) {
-                  return new LockToUnLock();
-                } else {
-                  return new UnLockToLock();
+                switch (snapshot.data){
+                  case ACTION_LOCK:
+                    _lastPage1Image = Image(
+                      image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
+                    );
+                    return new UnLockToLock();
+                    break;
+                  case ACTION_UNLOCK:
+                    _lastPage1Image = Image(
+                      image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_0000.jpg'),
+                    );
+                    return new LockToUnLock();
+                    break;
+                  default:
+                    return _lastPage1Image;
                 }
               }),
         ),
@@ -291,6 +314,16 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
   }
 
+  int getPage1Status() {
+    if(_isLocked){
+      page1Status = ACTION_LOCK;
+    } else {
+      page1Status = ACTION_UNLOCK;
+    }
+    printLog('page1Status---' +
+        page2Status.toString());
+    return page1Status;
+  }
   int getPage2Status() {
     //开启热车 温暖关 清凉关
     if (_isHeating && !_isWarmed && !_isCooled && !_isHeated) {
@@ -438,7 +471,10 @@ class _VideoState extends State<CarControlHomeActivity> {
                         snapshot.data.toString());
                     switch (snapshot.data) {
                       case ACTION_UNHEATING:
-                        _lastPage2Image = Image(image: AssetImage('assets/images/ori_heat/1原角度——热车（开）_0000.jpg'),);
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_heat/1原角度——热车（开）_0000.jpg'),
+                        );
                         return new HeatToOri();
                         break;
                       case ACTION_HEATING:
@@ -449,33 +485,73 @@ class _VideoState extends State<CarControlHomeActivity> {
                         return new OriToHeat();
                         break;
                       case ACTION_HEATED_WARMING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/heat_warm/2热车（开）——温暖_00043.jpg'),
+                        );
                         return new HeatedAndWarm();
                         break;
                       case ACTION_HEATED_UNWARMING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/heat_warm/2热车（开）——温暖_0000.jpg'),
+                        );
                         return new HeatedAndUnwarm();
                         break;
                       case ACTION_UNHEATED_WARM:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_warm/6热车（关）原角度——温暖_00027.jpg'),
+                        );
                         return new OriToWarm();
                         break;
                       case ACTION_UNHEATED_UNWARM:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_warm/6热车（关）原角度——温暖_0000.jpg'),
+                        );
                         return new WarmToOri();
                         break;
                       case ACTION_HEATED_COOLING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/heat_cool/3热车（开）——清凉_00041.jpg'),
+                        );
                         return new HeatedAndCool();
                         break;
                       case ACTION_HEATED_UNCOOLING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/heat_cool/3热车（开）——清凉_0000.jpg'),
+                        );
                         return new HeatedAndUncool();
                         break;
                       case ACTION_UNHEATED_COOLING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_cool/7热车（关）原角度——清凉_00028.jpg'),
+                        );
                         return new OriToCool();
                         break;
                       case ACTION_UNHEATED_UNCOOLING:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_cool/7热车（关）原角度——清凉_0000.jpg'),
+                        );
                         return new CoolToOri();
                         break;
                       case ACTION_WARM_TO_COOL:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/warm_cool/11温暖 ——- 清凉_00032.jpg'),
+                        );
                         return new WarmToCool();
                         break;
                       case ACTION_COOL_TO_WARM:
+                        _lastPage2Image = Image(
+                          image: AssetImage(
+                              'assets/images/warm_cool/11温暖 ——- 清凉_0000.jpg'),
+                        );
                         return new CoolToWarm();
                         break;
                       default:
@@ -758,32 +834,64 @@ class _VideoState extends State<CarControlHomeActivity> {
                         snapshot.data.toString());
                     switch (snapshot.data) {
                       case ACTION_OPEN_WINDOW:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_openwin/1原角度——开窗_00023.jpg'),
+                        );
                         return new WindowOpen();
                         break;
                       case ACTION_CLOSE_WINDOW:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_openwin/1原角度——开窗_0000.jpg'),
+                        );
                         return new windowClose();
                         break;
                       case ACTION_OPEN_TRAIL:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_opentra/2原角度——开尾门_00023.jpg'),
+                        );
                         return new TrailOpen();
                         break;
                       case ACTION_CLOSE_TRAIL:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/ori_opentra/2原角度——开尾门_0000.jpg'),
+                        );
                         return new TrailClose();
                         break;
                       case ACTION_WINED_TRA:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/wined_and_tra/3开窗——开尾门和开窗_00012.jpg'),
+                        );
                         return new WinedAndTra();
                         break;
                       case ACTION_WINED_UNTRA:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/wined_and_tra/3开窗——开尾门和开窗_0000.jpg'),
+                        );
                         return new WinedAndUntra();
                         break;
                       case ACTION_TRAED_WIN:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/traed_and_win/4开尾门——开窗和开尾门_00012.jpg'),
+                        );
                         return new TraedAndWin();
                         break;
                       case ACTION_TRAED_UNWIN:
+                        _lastPage3Image = Image(
+                          image: AssetImage(
+                              'assets/images/traed_and_win/4开尾门——开窗和开尾门_0000.jpg'),
+                        );
                         return new TraedAndUnwin();
                         break;
                       default:
                         printLog('default');
-                        return new windowClose();
+                        return _lastPage3Image;
                     }
                   }),
               StreamBuilder<Object>(
