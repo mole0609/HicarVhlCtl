@@ -148,12 +148,16 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   void onWarmClickListener() {
     _isWarming = !_isWarming;
+    _isCooling = false;
     _streamControllerWarm.sink.add(++count);
+    _streamControllerCool.sink.add(++count);
     _streamPage2Status.sink.add(getPage2Status());
   }
 
   void onCoolClickListener() {
     _isCooling = !_isCooling;
+    _isWarming = false;
+    _streamControllerWarm.sink.add(++count);
     _streamControllerCool.sink.add(++count);
     _streamPage2Status.sink.add(getPage2Status());
   }
@@ -177,9 +181,9 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   Widget _swiperBuilder(BuildContext context, int index) {
     List<Widget> pageList = new List();
+    pageList.add(_pageUnlock());
     pageList.add(_pageCarControl());
     pageList.add(_pageCarMode());
-    pageList.add(_pageUnlock());
     return pageList[index];
   }
 
