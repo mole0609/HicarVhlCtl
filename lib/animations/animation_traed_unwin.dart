@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_app_video_demo/utils/image_util.dart';
 
-class CircleOn extends StatefulWidget {
-  _CircleOnState createState() => new _CircleOnState();
+class TraedAndUnwin extends StatefulWidget {
+  _TraedAndUnwinState createState() => new _TraedAndUnwinState();
 }
-class _CircleOnState extends State<CircleOn>
+
+class _TraedAndUnwinState extends State<TraedAndUnwin>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
@@ -19,7 +20,7 @@ class _CircleOnState extends State<CircleOn>
   }
 
   Widget build(BuildContext context) {
-    return new AnimatedShow(animation: animation);
+    return new AnimatedDismiss(animation: animation);
   }
 
   dispose() {
@@ -28,24 +29,22 @@ class _CircleOnState extends State<CircleOn>
   }
 }
 
-class AnimatedShow extends AnimatedWidget {
-  AnimatedShow({Key key, Animation<double> animation})
+class AnimatedDismiss extends AnimatedWidget {
+  AnimatedDismiss({Key key, Animation<double> animation})
       : super(key: key, listenable: animation);
 
   Widget build(BuildContext context) {
     final Animation<double> animation = listenable;
     return new Center(
       child: new Container(
-        padding: EdgeInsets.all(7),
         child: new ImagesAnimation(
-          durationSeconds: 1,
+          durationSeconds: 2,
           entry: ImagesAnimationEntry(
-              0, 26, 'assets/images/circles/圆圈点亮1_000%s.png'),
-          h: 60,
-          w: 60,
+              12, 0, 'assets/images/traed_and_win/4开尾门——开窗和开尾门_000%s.jpg'),
+          h: 230,
+          w: 328,
         ),
       ),
     );
   }
 }
-

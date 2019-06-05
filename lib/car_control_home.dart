@@ -8,11 +8,15 @@ import 'package:flutter_app_video_demo/animations/animation_ori_heat.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_warm.dart';
 import 'package:flutter_app_video_demo/animations/animation_tra_close.dart';
 import 'package:flutter_app_video_demo/animations/animation_tra_open.dart';
+import 'package:flutter_app_video_demo/animations/animation_traed_unwin.dart';
+import 'package:flutter_app_video_demo/animations/animation_traed_win.dart';
 import 'package:flutter_app_video_demo/animations/animation_unlock_lock.dart';
 import 'package:flutter_app_video_demo/animations/animation_warm_heat.dart';
 import 'package:flutter_app_video_demo/animations/animation_warm_ori.dart';
 import 'package:flutter_app_video_demo/animations/animation_win_close.dart';
 import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
+import 'package:flutter_app_video_demo/animations/animation_wined_tra.dart';
+import 'package:flutter_app_video_demo/animations/animation_wined_untra.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'dart:async';
@@ -61,6 +65,10 @@ class _VideoState extends State<CarControlHomeActivity> {
   static const int ACTION_CLOSE_WINDOW = 31;
   static const int ACTION_OPEN_TRAIL = 32;
   static const int ACTION_CLOSE_TRAIL = 33;
+  static const int ACTION_WINED_TRA = 34;
+  static const int ACTION_WINED_UNTRA = 35;
+  static const int ACTION_TRAED_WIN = 36;
+  static const int ACTION_TRAED_UNWIN = 37;
 
   bool _isLocked = true;
 
@@ -85,7 +93,7 @@ class _VideoState extends State<CarControlHomeActivity> {
       entry: ImagesAnimationEntry(
         26,
         26,
-        'assets/images/circles/圆圈点亮1_000%s.png',
+        'assets/images/buttons/circles/圆圈点亮1_000%s.png',
       ),
       h: 60,
       w: 60,
@@ -163,8 +171,8 @@ class _VideoState extends State<CarControlHomeActivity> {
   Widget _swiperBuilder(BuildContext context, int index) {
     List<Widget> pageList = new List();
     pageList.add(_pageCarControl());
-    pageList.add(_pageUnlock());
     pageList.add(_pageCarMode());
+    pageList.add(_pageUnlock());
     return pageList[index];
   }
 
@@ -198,7 +206,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('assets/images/home_icon_refresh@3x.png'),
+                    image: AssetImage('assets/images/buttons/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
@@ -305,7 +313,6 @@ class _VideoState extends State<CarControlHomeActivity> {
   int getPage3Status() {
     if (_isWinOpening && !_isWinOpened && !_isTraOpened) {
       _isWinOpened = true;
-//      _isTraOpened = false;
       page3Status = ACTION_OPEN_WINDOW;
     } else if (!_isWinOpening && _isWinOpened && !_isTraOpened) {
       _isWinOpened = false;
@@ -316,6 +323,18 @@ class _VideoState extends State<CarControlHomeActivity> {
     } else if (!_isTraOpening && !_isWinOpened && _isTraOpened) {
       _isTraOpened = false;
       page3Status = ACTION_CLOSE_TRAIL;
+    } else if (_isWinOpened && !_isTraOpened && _isTraOpening) {
+      _isTraOpened = true;
+      page3Status = ACTION_WINED_TRA;
+    } else if (_isWinOpened && _isTraOpened && !_isTraOpening) {
+      _isTraOpened = false;
+      page3Status = ACTION_WINED_UNTRA;
+    } else if (!_isWinOpened && _isTraOpened && _isWinOpening) {
+      _isWinOpened = true;
+      page3Status = ACTION_TRAED_WIN;
+    } else if (_isWinOpened && _isTraOpened && !_isWinOpening) {
+      _isWinOpened = false;
+      page3Status = ACTION_TRAED_UNWIN;
     }
 
     printLog('page3Status---' + page3Status.toString());
@@ -383,7 +402,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('assets/images/home_icon_refresh@3x.png'),
+                    image: AssetImage('assets/images/buttons/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
@@ -444,13 +463,13 @@ class _VideoState extends State<CarControlHomeActivity> {
                                           return !_isHeating
                                               ? ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/open_bt_no_selection@3x.png',
+                                                    'assets/images/buttons/open_bt_no_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/open_bt_selection@3x.png',
+                                                    'assets/images/buttons/open_bt_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 );
@@ -505,13 +524,13 @@ class _VideoState extends State<CarControlHomeActivity> {
                                           return !_isWarming
                                               ? ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/heat_bt_no_selection@3x.png',
+                                                    'assets/images/buttons/heat_bt_no_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/heat_bt_selection@3x.png',
+                                                    'assets/images/buttons/heat_bt_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 );
@@ -566,13 +585,13 @@ class _VideoState extends State<CarControlHomeActivity> {
                                           return !_isCooling
                                               ? ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/heat_bt_no_selection@3x.png',
+                                                    'assets/images/buttons/heat_bt_no_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/heat_bt_selection@3x.png',
+                                                    'assets/images/buttons/heat_bt_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 );
@@ -637,7 +656,20 @@ class _VideoState extends State<CarControlHomeActivity> {
                   case ACTION_CLOSE_TRAIL:
                     return new TrailClose();
                     break;
+                  case ACTION_WINED_TRA:
+                    return new WinedAndTra();
+                    break;
+                  case ACTION_WINED_UNTRA:
+                    return new WinedAndUntra();
+                    break;
+                  case ACTION_TRAED_WIN:
+                    return new TraedAndWin();
+                    break;
+                  case ACTION_TRAED_UNWIN:
+                    return new TraedAndUnwin();
+                    break;
                   default:
+                    printLog('default');
                     return new windowClose();
                 }
               }),
@@ -655,7 +687,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                   child: Image(
-                    image: AssetImage('assets/images/home_icon_refresh@3x.png'),
+                    image: AssetImage('assets/images/buttons/home_icon_refresh@3x.png'),
                     fit: BoxFit.contain,
                     height: 14,
                     color: Colors.white,
@@ -716,13 +748,13 @@ class _VideoState extends State<CarControlHomeActivity> {
                                           return !_isWinOpening
                                               ? ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/window_bt_no_selection@3x.png',
+                                                    'assets/images/buttons/window_bt_no_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/window_bt_selection@3x.png',
+                                                    'assets/images/buttons/window_bt_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 );
@@ -777,13 +809,13 @@ class _VideoState extends State<CarControlHomeActivity> {
                                           return !_isTraOpening
                                               ? ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/trail_bt_no_selection@3x.png',
+                                                    'assets/images/buttons/trail_bt_no_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/trail_bt_selection@3x.png',
+                                                    'assets/images/buttons/trail_bt_selection@3x.png',
                                                   ),
                                                   color: Colors.white,
                                                 );
@@ -835,7 +867,7 @@ class _VideoState extends State<CarControlHomeActivity> {
             padding: EdgeInsets.only(right: 15),
             child: ImageIcon(
               AssetImage(
-                'assets/images/scan.png',
+                'assets/images/buttons/buttons/scan.png',
               ),
               color: Colors.white,
               size: 20,
@@ -848,7 +880,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               iconSize: 30,
               icon: ImageIcon(
                 AssetImage(
-                  'assets/images/home_icon_personal.png',
+                  'assets/images/buttons/home_icon_personal.png',
                 ),
                 color: Colors.white,
               ),
@@ -908,7 +940,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                                   children: <Widget>[
                                     ImageIcon(
                                       AssetImage(
-                                        'assets/images/home_icon_gs_order@3x.png',
+                                        'assets/images/buttons/home_icon_gs_order@3x.png',
                                       ),
                                       color: Colors.white,
                                       size: 20,

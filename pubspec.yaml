@@ -51,6 +51,7 @@ flutter:
   #  - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/images/buttons/
     - assets/images/circles/
     - assets/images/heat_cool/
     - assets/images/heat_warm/
@@ -61,6 +62,8 @@ flutter:
     - assets/images/warm_cool/
     - assets/images/ori_openwin/
     - assets/images/ori_opentra/
+    - assets/images/traed_and_win/
+    - assets/images/wined_and_tra/
     - assets/videos/page_1/
     - assets/videos/page_2/
     - assets/videos/page_3/
