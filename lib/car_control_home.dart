@@ -111,7 +111,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     image: AssetImage('assets/images/ori_openwin/1原角度——开窗_0000.jpg'),
   );
 
-
   @override
   void initState() {
     super.initState();
@@ -143,7 +142,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   void _onLockClickLister() {
     _isLocked = !_isLocked;
     _streamControllerLock.sink.add(getPage1Status());
-    _globalKey.currentState.show('"这是SnackBar count: ${count++}"');
+    _globalKey.currentState.show('解锁----');
   }
 
   void onHeatClickListener() {
@@ -203,16 +202,18 @@ class _VideoState extends State<CarControlHomeActivity> {
               stream: _streamControllerLock.stream,
               initialData: 0,
               builder: (context, snapshot) {
-                switch (snapshot.data){
+                switch (snapshot.data) {
                   case ACTION_LOCK:
                     _lastPage1Image = Image(
-                      image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
+                      image: AssetImage(
+                          'assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
                     );
                     return new UnLockToLock();
                     break;
                   case ACTION_UNLOCK:
                     _lastPage1Image = Image(
-                      image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_0000.jpg'),
+                      image: AssetImage(
+                          'assets/images/unlock_lock/解锁——上锁 原角度_0000.jpg'),
                     );
                     return new LockToUnLock();
                     break;
@@ -303,15 +304,15 @@ class _VideoState extends State<CarControlHomeActivity> {
   }
 
   int getPage1Status() {
-    if(_isLocked){
+    if (_isLocked) {
       page1Status = ACTION_LOCK;
     } else {
       page1Status = ACTION_UNLOCK;
     }
-    printLog('page1Status---' +
-        page2Status.toString());
+    printLog('page1Status---' + page2Status.toString());
     return page1Status;
   }
+
   int getPage2Status() {
     //开启热车 温暖关 清凉关
     if (_isHeating && !_isWarmed && !_isCooled && !_isHeated) {
@@ -1081,6 +1082,31 @@ class _VideoState extends State<CarControlHomeActivity> {
     );
   }
 
+  //msg可以不传
+  Widget _mySnackBarWidget(String msg) {
+    return SnackBarWidget(
+      // 绑定GlobalKey，用于调用显示/隐藏方法
+      key: _globalKey,
+      //textBuilder用于动态构建Text，用于显示变化的内容。优先级高于'text'属性
+      textBuilder: (String message) {
+        return Text(message ?? msg,
+            style: TextStyle(color: Colors.white, fontSize: 16.0));
+      },
+      // 内容不变时使用text属性
+      text: Text("内容不变时使用text属性"),
+      // 设定背景decoration
+      decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          color: Colors.blue.withOpacity(0.8)),
+      //设置显示时长，从动画开始
+      duration: Duration(seconds: 2),
+      // 用于显示内容，默认是填充空白区域的
+      /*content: Center(child: Text("这是内容部分"))*/
+      margin: EdgeInsets.only(top: 2.0),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1115,20 +1141,19 @@ class _VideoState extends State<CarControlHomeActivity> {
         ),
         elevation: 0.0,
       ),
-      body: Container(
-        padding: EdgeInsets.only(top: 50),
-        decoration: BoxDecoration(color: const Color(0xFF100F27)),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              flex: 72,
-              child: Container(
-                decoration: BoxDecoration(color: const Color(0xFF100F27)),
-                margin: EdgeInsets.only(top: 0.0),
-                child: Stack(
-                  children: <Widget>[
-
-                    Swiper(
+      body: Stack(
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.only(top: 50),
+            decoration: BoxDecoration(color: const Color(0xFF100F27)),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 72,
+                  child: Container(
+                    decoration: BoxDecoration(color: const Color(0xFF100F27)),
+                    margin: EdgeInsets.only(top: 0.0),
+                    child: Swiper(
                       itemBuilder: _swiperBuilder,
                       itemCount: 3,
                       pagination: new SwiperPagination(
@@ -1142,122 +1167,108 @@ class _VideoState extends State<CarControlHomeActivity> {
                       autoplay: false,
                       onTap: (index) => print('点击了第$index个'),
                     ),
-                    SnackBarWidget(
-                      // 绑定GlobalKey，用于调用显示/隐藏方法
-                        key: _globalKey,
-                        //textBuilder用于动态构建Text，用于显示变化的内容。优先级高于'text'属性
-                        textBuilder: (String message) {
-                          return Text(message ?? "",
-                              style: TextStyle(color: Colors.white, fontSize: 16.0));
-                        },
-                        // 内容不变时使用text属性
-                        text: Text("内容不变时使用text属性"),
-                        // 设定背景decoration
-                        decoration: ShapeDecoration(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(20))),
-                            color: Colors.blue.withOpacity(0.8)),
-                        // 用于显示内容，默认是填充空白区域的
-                        content: Center(child: Text("这是内容部分"))),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 28,
-              child: Container(
-                child: Container(
-                  child: Card(
-                      color: const Color(0x20FFFFFF),
-                      margin: EdgeInsets.all(10),
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            left: 16.0, right: 16.0, top: 0.0, bottom: 0.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              '附近加油站',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20.0),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Expanded(
+                  flex: 28,
+                  child: Container(
+                    child: Container(
+                      child: Card(
+                          color: const Color(0x20FFFFFF),
+                          margin: EdgeInsets.all(10),
+                          child: Container(
+                            padding: EdgeInsets.only(
+                                left: 16.0, right: 16.0, top: 0.0, bottom: 0.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
+                                Text(
+                                  '附近加油站',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20.0),
+                                ),
                                 Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
-                                    ImageIcon(
-                                      AssetImage(
-                                        'assets/images/buttons/home_icon_gs_order@3x.png',
-                                      ),
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    SizedBox(
-                                      width: 14,
+                                    Row(
+                                      children: <Widget>[
+                                        ImageIcon(
+                                          AssetImage(
+                                            'assets/images/buttons/home_icon_gs_order@3x.png',
+                                          ),
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 14,
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text(
+                                              '船厂路加油站',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18),
+                                            ),
+                                            Text(
+                                              '距离600m',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                     Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.end,
                                       children: <Widget>[
                                         Text(
-                                          '船厂路加油站',
+                                          '￥6.95',
                                           style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18),
+                                              color: const Color(0xFF49D7FF),
+                                              fontSize: 20),
                                         ),
                                         Text(
-                                          '距离600m',
+                                          '#95',
                                           style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12),
+                                              color: const Color(0x9949D7FF),
+                                              fontSize: 10),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                Column(
+                                Divider(
+                                  height: 10,
+                                  color: Colors.grey,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: <Widget>[
                                     Text(
-                                      '￥6.95',
-                                      style: TextStyle(
-                                          color: const Color(0xFF49D7FF),
-                                          fontSize: 20),
-                                    ),
-                                    Text(
-                                      '#95',
-                                      style: TextStyle(
-                                          color: const Color(0x9949D7FF),
-                                          fontSize: 10),
+                                      '更多加油站 >',
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
-                            Divider(
-                              height: 10,
-                              color: Colors.grey,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                Text(
-                                  '更多加油站 >',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )),
-                ),
-              ),
-            )
-          ],
-        ),
+                          )),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          _mySnackBarWidget(''),
+        ],
       ),
     );
   }
