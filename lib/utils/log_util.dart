@@ -1,5 +1,5 @@
 
-const TAG='CarControl UI-LOG';
+const TAG='CarControl';
 
 
 printLog(String s) {

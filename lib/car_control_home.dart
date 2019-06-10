@@ -24,6 +24,7 @@ import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_tra.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_untra.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
+import 'package:flutter_app_video_demo/utils/flutter_snackbar.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -37,8 +38,9 @@ class CarControlHomeActivity extends StatefulWidget {
 }
 
 class _VideoState extends State<CarControlHomeActivity> {
-  final String TAG = '[CarContrlLog]';
   int count = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  final GlobalKey<SnackBarWidgetState> _globalKey = new GlobalKey();
 
   StreamController<int> _streamPage2Status,
       _streamPage3Status,
@@ -109,19 +111,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     image: AssetImage('assets/images/ori_openwin/1原角度——开窗_0000.jpg'),
   );
 
-  _VideoState() {
-    printLog('_VideoState--------------');
-    imagesAnimation = new ImagesAnimation(
-      durationSeconds: 1,
-      entry: ImagesAnimationEntry(
-        26,
-        26,
-        'assets/images/buttons/circles/圆圈点亮1_000%s.png',
-      ),
-      h: 60,
-      w: 60,
-    );
-  }
 
   @override
   void initState() {
@@ -154,6 +143,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   void _onLockClickLister() {
     _isLocked = !_isLocked;
     _streamControllerLock.sink.add(getPage1Status());
+    _globalKey.currentState.show('"这是SnackBar count: ${count++}"');
   }
 
   void onHeatClickListener() {
@@ -283,9 +273,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                           color: const Color(0xFF584AA8),
                         ),
                         child: FlatButton(
-                            onPressed: () {
-                              _onLockClickLister();
-                            },
+                            onPressed: _onLockClickLister,
                             child: StreamBuilder<Object>(
                                 stream: _streamControllerLock.stream,
                                 initialData: 0,
@@ -1096,6 +1084,7 @@ class _VideoState extends State<CarControlHomeActivity> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: const Color(0xFF100F27),
         title: const Text('HUAWEI Car'),
@@ -1136,19 +1125,41 @@ class _VideoState extends State<CarControlHomeActivity> {
               child: Container(
                 decoration: BoxDecoration(color: const Color(0xFF100F27)),
                 margin: EdgeInsets.only(top: 0.0),
-                child: Swiper(
-                  itemBuilder: _swiperBuilder,
-                  itemCount: 3,
-                  pagination: new SwiperPagination(
-                      builder: DotSwiperPaginationBuilder(
-                    color: Colors.grey,
-                    activeColor: Colors.white,
-                    size: 7.0,
-                    activeSize: 9.0,
-                  )),
-                  scrollDirection: Axis.horizontal,
-                  autoplay: false,
-                  onTap: (index) => print('点击了第$index个'),
+                child: Stack(
+                  children: <Widget>[
+
+                    Swiper(
+                      itemBuilder: _swiperBuilder,
+                      itemCount: 3,
+                      pagination: new SwiperPagination(
+                          builder: DotSwiperPaginationBuilder(
+                        color: Colors.grey,
+                        activeColor: Colors.white,
+                        size: 7.0,
+                        activeSize: 9.0,
+                      )),
+                      scrollDirection: Axis.horizontal,
+                      autoplay: false,
+                      onTap: (index) => print('点击了第$index个'),
+                    ),
+                    SnackBarWidget(
+                      // 绑定GlobalKey，用于调用显示/隐藏方法
+                        key: _globalKey,
+                        //textBuilder用于动态构建Text，用于显示变化的内容。优先级高于'text'属性
+                        textBuilder: (String message) {
+                          return Text(message ?? "",
+                              style: TextStyle(color: Colors.white, fontSize: 16.0));
+                        },
+                        // 内容不变时使用text属性
+                        text: Text("内容不变时使用text属性"),
+                        // 设定背景decoration
+                        decoration: ShapeDecoration(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20))),
+                            color: Colors.blue.withOpacity(0.8)),
+                        // 用于显示内容，默认是填充空白区域的
+                        content: Center(child: Text("这是内容部分"))),
+                  ],
                 ),
               ),
             ),
@@ -1227,7 +1238,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                             ),
                             Divider(
                               height: 10,
-                              color: Colors.black45,
+                              color: Colors.grey,
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
