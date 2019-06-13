@@ -65,6 +65,7 @@ flutter:
     - assets/images/ori_opentra/
     - assets/images/traed_and_win/
     - assets/images/wined_and_tra/
+    - assets/images/refresh/
     - assets/videos/page_1/
     - assets/videos/page_2/
     - assets/videos/page_3/
