@@ -1097,13 +1097,13 @@ class _VideoState extends State<CarControlHomeActivity> {
       // 设定背景decoration
       decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10))),
+              borderRadius: BorderRadius.all(Radius.circular(5))),
           color: Colors.blue.withOpacity(0.8)),
       //设置显示时长，从动画开始
       duration: Duration(seconds: 2),
       // 用于显示内容，默认是填充空白区域的
       /*content: Center(child: Text("这是内容部分"))*/
-      margin: EdgeInsets.only(top: 2.0),
+//      margin: EdgeInsets.only(top: 2.0),
     );
   }
 
@@ -1144,10 +1144,21 @@ class _VideoState extends State<CarControlHomeActivity> {
       body: Stack(
         children: <Widget>[
           Container(
-            padding: EdgeInsets.only(top: 50),
+//            padding: EdgeInsets.only(top: 50),
             decoration: BoxDecoration(color: const Color(0xFF100F27)),
             child: Column(
               children: <Widget>[
+                Container(
+                  child: Center(
+                    child: Text(
+                      '沪A88888',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 50),
+                ),
                 Expanded(
                   flex: 72,
                   child: Container(

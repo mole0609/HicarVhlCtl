@@ -79,6 +79,7 @@ class SnackBarWidgetState extends State<SnackBarWidget>
             key: _snackKey,
             controller: _controller,
             child: Container(
+              alignment: Alignment.center,
               key: _childKey,
               // 如果存在textBuilder，则创建_DynamicText，用来动态更新Text的内容
               // 如果不存在textBuilder，则使用静态的Text
@@ -96,7 +97,7 @@ class SnackBarWidgetState extends State<SnackBarWidget>
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.all(Radius.circular(30.0))),
-                      color: Colors.orange),
+                      color: Colors.orange),width: 320,height: 50,
             ))
       ],
     );
