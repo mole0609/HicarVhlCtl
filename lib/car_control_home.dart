@@ -24,6 +24,7 @@ import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_tra.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_untra.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
+import 'package:flutter_app_video_demo/utils/flutter_screenutil.dart';
 import 'package:flutter_app_video_demo/utils/flutter_snackbar.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'dart:async';
@@ -196,8 +197,8 @@ class _VideoState extends State<CarControlHomeActivity> {
     return Container(
       child: Column(children: <Widget>[
         SizedBox(
-          height: 230.0,
-          width: 328.0,
+          height: ScreenUtil().setHeight(460),
+          width: ScreenUtil().setWidth(656),
           child: StreamBuilder<Object>(
               stream: _streamControllerLock.stream,
               initialData: 0,
@@ -225,7 +226,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           child: Container(
             padding: EdgeInsets.only(
-              left: 20,
+              left: ScreenUtil().setWidth(40),
             ),
             color: const Color(0xFF100F27),
             child: Row(
@@ -243,7 +244,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.only(left: 5.0),
+                  padding: EdgeInsets.only(left: ScreenUtil().setWidth(10)),
                   child: Text(
                     "刷新时间：${_getCurrentTime()}",
                     style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -254,13 +255,13 @@ class _VideoState extends State<CarControlHomeActivity> {
           ),
         ),
         SizedBox(
-          height: 120,
+          height: ScreenUtil().setHeight(240),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
-                padding: EdgeInsets.only(top: 10),
+                padding: EdgeInsets.only(top: ScreenUtil().setHeight(10)),
                 color: const Color(0xFF100F27),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -448,8 +449,8 @@ class _VideoState extends State<CarControlHomeActivity> {
     return Container(
       child: Column(children: <Widget>[
         SizedBox(
-          height: 230.0,
-          width: 328.0,
+          height: ScreenUtil().setHeight(460.0),
+          width: ScreenUtil().setWidth(656.0),
           child: Stack(
             children: <Widget>[
               StreamBuilder<Object>(
@@ -544,7 +545,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                         return new CoolToWarm();
                         break;
                       default:
-                        return _lastPage2Image;
+                        return Center(child: _lastPage2Image);
                     }
                   }),
               StreamBuilder<Object>(
@@ -566,9 +567,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         ),
         SizedBox(
           child: Container(
-            padding: EdgeInsets.only(
-              left: 20,
-            ),
+            padding: EdgeInsets.only(top: ScreenUtil().setHeight(10)),
             color: const Color(0xFF100F27),
             child: Row(
               mainAxisSize: MainAxisSize.max,
@@ -585,7 +584,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.only(left: 5.0),
+                  padding: EdgeInsets.only(left: ScreenUtil().setWidth(10)),
                   child: Text(
                     "刷新时间：${_getCurrentTime()}",
                     style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -600,7 +599,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           width: 340,
           child: Container(
 //            color: const Color(0xFF999999),
-            margin: EdgeInsets.only(top: 25),
+            margin: EdgeInsets.only(top: ScreenUtil().setHeight(50)),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -811,8 +810,8 @@ class _VideoState extends State<CarControlHomeActivity> {
     return Container(
       child: Column(children: <Widget>[
         SizedBox(
-          height: 230.0,
-          width: 328.0,
+          height: ScreenUtil().setHeight(460.0),
+          width: ScreenUtil().setWidth(656.0),
           child: Stack(
             children: <Widget>[
               StreamBuilder<Object>(
@@ -880,7 +879,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                         break;
                       default:
                         printLog('default');
-                        return _lastPage3Image;
+                        return Center(child: _lastPage3Image);
                     }
                   }),
               StreamBuilder<Object>(
@@ -903,7 +902,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           child: Container(
             padding: EdgeInsets.only(
-              left: 20,
+              left: ScreenUtil().setWidth(40),
             ),
             color: const Color(0xFF100F27),
             child: Row(
@@ -921,7 +920,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.only(left: 5.0),
+                  padding: EdgeInsets.only(left: ScreenUtil().setWidth(10)),
                   child: Text(
                     "刷新时间：${_getCurrentTime()}",
                     style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -936,7 +935,7 @@ class _VideoState extends State<CarControlHomeActivity> {
           width: 340,
           child: Container(
 //            color: const Color(0xFF999999),
-            margin: EdgeInsets.only(top: 25),
+            margin: EdgeInsets.only(top: ScreenUtil().setHeight(50)),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1109,6 +1108,8 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = ScreenUtil.getInstance()..init(context);
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -1117,7 +1118,7 @@ class _VideoState extends State<CarControlHomeActivity> {
         centerTitle: true,
         actions: <Widget>[
           Padding(
-            padding: EdgeInsets.only(right: 15),
+            padding: EdgeInsets.only(right: ScreenUtil().setWidth(10)),
             child: ImageIcon(
               AssetImage(
                 'assets/images/buttons/scan.png',
@@ -1157,10 +1158,10 @@ class _VideoState extends State<CarControlHomeActivity> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 50),
+                  padding: EdgeInsets.only(top: ScreenUtil().setHeight(100)),
                 ),
                 Expanded(
-                  flex: 72,
+                  flex: 90,
                   child: Container(
                     decoration: BoxDecoration(color: const Color(0xFF100F27)),
                     margin: EdgeInsets.only(top: 0.0),
@@ -1180,105 +1181,108 @@ class _VideoState extends State<CarControlHomeActivity> {
                     ),
                   ),
                 ),
-                Expanded(
-                  flex: 28,
-                  child: Container(
-                    child: Container(
-                      child: Card(
-                          color: const Color(0x20FFFFFF),
-                          margin: EdgeInsets.all(10),
-                          child: Container(
-                            padding: EdgeInsets.only(
-                                left: 16.0, right: 16.0, top: 0.0, bottom: 0.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  '附近加油站',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20.0),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        ImageIcon(
-                                          AssetImage(
-                                            'assets/images/buttons/home_icon_gs_order@3x.png',
-                                          ),
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 14,
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(
-                                              '船厂路加油站',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18),
-                                            ),
-                                            Text(
-                                              '距离600m',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: <Widget>[
-                                        Text(
-                                          '￥6.95',
-                                          style: TextStyle(
-                                              color: const Color(0xFF49D7FF),
-                                              fontSize: 20),
-                                        ),
-                                        Text(
-                                          '#95',
-                                          style: TextStyle(
-                                              color: const Color(0x9949D7FF),
-                                              fontSize: 10),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Divider(
-                                  height: 10,
-                                  color: Colors.grey,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    Text(
-                                      '更多加油站 >',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )),
-                    ),
-                  ),
-                )
+//                Expanded(
+//                  flex: 28,
+//                  child: Container(
+//                    child: Container(
+//                      child: Card(
+//                          color: const Color(0x20FFFFFF),
+//                          margin: EdgeInsets.all(10),
+//                          child: Container(
+//                            padding: EdgeInsets.only(
+//                                left: 16.0, right: 16.0, top: 0.0, bottom: 0.0),
+//                            child: Column(
+//                              crossAxisAlignment: CrossAxisAlignment.start,
+//                              mainAxisAlignment: MainAxisAlignment.center,
+//                              children: <Widget>[
+//                                Text(
+//                                  '附近加油站',
+//                                  style: TextStyle(
+//                                      color: Colors.white, fontSize: 20.0),
+//                                ),
+//                                Row(
+//                                  mainAxisAlignment:
+//                                      MainAxisAlignment.spaceBetween,
+//                                  children: <Widget>[
+//                                    Row(
+//                                      children: <Widget>[
+//                                        ImageIcon(
+//                                          AssetImage(
+//                                            'assets/images/buttons/home_icon_gs_order@3x.png',
+//                                          ),
+//                                          color: Colors.white,
+//                                          size: 20,
+//                                        ),
+//                                        SizedBox(
+//                                          width: 14,
+//                                        ),
+//                                        Column(
+//                                          crossAxisAlignment:
+//                                              CrossAxisAlignment.start,
+//                                          children: <Widget>[
+//                                            Text(
+//                                              '船厂路加油站',
+//                                              style: TextStyle(
+//                                                  color: Colors.white,
+//                                                  fontSize: 18),
+//                                            ),
+//                                            Text(
+//                                              '距离600m',
+//                                              style: TextStyle(
+//                                                  color: Colors.white,
+//                                                  fontSize: 12),
+//                                            ),
+//                                          ],
+//                                        ),
+//                                      ],
+//                                    ),
+//                                    Column(
+//                                      crossAxisAlignment:
+//                                          CrossAxisAlignment.end,
+//                                      children: <Widget>[
+//                                        Text(
+//                                          '￥6.95',
+//                                          style: TextStyle(
+//                                              color: const Color(0xFF49D7FF),
+//                                              fontSize: 20),
+//                                        ),
+//                                        Text(
+//                                          '#95',
+//                                          style: TextStyle(
+//                                              color: const Color(0x9949D7FF),
+//                                              fontSize: 10),
+//                                        ),
+//                                      ],
+//                                    ),
+//                                  ],
+//                                ),
+//                                Divider(
+//                                  height: 10,
+//                                  color: Colors.grey,
+//                                ),
+//                                Row(
+//                                  mainAxisAlignment: MainAxisAlignment.start,
+//                                  crossAxisAlignment: CrossAxisAlignment.end,
+//                                  children: <Widget>[
+//                                    Text(
+//                                      '更多加油站 >',
+//                                      style: TextStyle(color: Colors.white),
+//                                    ),
+//                                  ],
+//                                ),
+//                              ],
+//                            ),
+//                          )),
+//                    ),
+//                  ),
+//                )
               ],
             ),
           ),
-          _mySnackBarWidget(''),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: _mySnackBarWidget(''),
+          ),
         ],
       ),
     );

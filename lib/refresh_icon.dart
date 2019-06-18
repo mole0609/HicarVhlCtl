@@ -13,6 +13,7 @@ class _RefreshIconState extends State<RefreshIcon>
 
   @override
   void initState() {
+    super.initState();
     animationController = AnimationController(
         duration: Duration(milliseconds: 2000), vsync: this);
     curved =
