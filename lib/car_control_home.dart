@@ -24,6 +24,7 @@ import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_tra.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_untra.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
+import 'package:flutter_app_video_demo/utils/dialog_util.dart';
 import 'package:flutter_app_video_demo/utils/flutter_screenutil.dart';
 import 'package:flutter_app_video_demo/utils/flutter_snackbar.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
@@ -140,10 +141,12 @@ class _VideoState extends State<CarControlHomeActivity> {
     super.dispose();
   }
 
-  void _onLockClickLister() {
+
+  void _onLockClickLister(BuildContext context) {
     _isLocked = !_isLocked;
     _streamControllerLock.sink.add(getPage1Status());
     _globalKey.currentState.show('解锁----');
+    showMyMaterialDialog(context);
   }
 
   void onHeatClickListener() {
@@ -275,7 +278,9 @@ class _VideoState extends State<CarControlHomeActivity> {
                           color: const Color(0xFF584AA8),
                         ),
                         child: FlatButton(
-                            onPressed: _onLockClickLister,
+                            onPressed: (){
+                              _onLockClickLister(context);
+                            },
                             child: StreamBuilder<Object>(
                                 stream: _streamControllerLock.stream,
                                 initialData: 0,
