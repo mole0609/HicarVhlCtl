@@ -31,6 +31,7 @@ import 'package:flutter_app_video_demo/utils/flutter_snackbar.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'animations/animation_init_lock.dart';
 import 'utils/image_util.dart';
 
 class CarControlHomeActivity extends StatefulWidget {
@@ -104,8 +105,6 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   Image _lastPage1Image = Image(
     image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
-    height: ScreenUtil().setHeight(460),
-    width: ScreenUtil().setWidth(656),
   );
 
   Image _lastPage2Image = Image(
@@ -203,7 +202,7 @@ class _VideoState extends State<CarControlHomeActivity> {
     return Container(
       child: Column(children: <Widget>[
         Container(
-          height: ScreenUtil().setHeight(600),
+          height: ScreenUtil().setHeight(500),
           width: ScreenUtil().setWidth(800),
           decoration: ShapeDecoration(
               color: const Color(0xFF100F27),
@@ -213,8 +212,8 @@ class _VideoState extends State<CarControlHomeActivity> {
                       bottomRight:
                           Radius.circular(ScreenUtil().setHeight(80))))),
           child: Container(
-//            height: ScreenUtil().setHeight(460),
-//            width: ScreenUtil().setWidth(656),
+            height: ScreenUtil().setHeight(460),
+            width: ScreenUtil().setWidth(656),
             child: StreamBuilder<Object>(
                 stream: _streamControllerLock.stream,
                 initialData: 0,
@@ -235,7 +234,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                       return new LockToUnLock();
                       break;
                     default:
-                      return _lastPage1Image;
+                      return InitLock();
                   }
                 }),
           ),
