@@ -23,6 +23,7 @@ import 'package:flutter_app_video_demo/animations/animation_win_close.dart';
 import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_tra.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_untra.dart';
+import 'package:flutter_app_video_demo/pin_dialog_util.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:flutter_app_video_demo/utils/dialog_util.dart';
 import 'package:flutter_app_video_demo/utils/flutter_screenutil.dart';
@@ -103,6 +104,8 @@ class _VideoState extends State<CarControlHomeActivity> {
 
   Image _lastPage1Image = Image(
     image: AssetImage('assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
+    height: ScreenUtil().setHeight(460),
+    width: ScreenUtil().setWidth(656),
   );
 
   Image _lastPage2Image = Image(
@@ -141,12 +144,12 @@ class _VideoState extends State<CarControlHomeActivity> {
     super.dispose();
   }
 
-
   void _onLockClickLister(BuildContext context) {
     _isLocked = !_isLocked;
     _streamControllerLock.sink.add(getPage1Status());
     _globalKey.currentState.show('解锁----');
-    showMyMaterialDialog(context);
+//    showMyMaterialDialog(context);
+//    Navigator.push(context,new MaterialPageRoute(builder: (context) => new PinDialog()));
   }
 
   void onHeatClickListener() {
@@ -199,39 +202,51 @@ class _VideoState extends State<CarControlHomeActivity> {
   _pageUnlock() {
     return Container(
       child: Column(children: <Widget>[
-        SizedBox(
-          height: ScreenUtil().setHeight(460),
-          width: ScreenUtil().setWidth(656),
-          child: StreamBuilder<Object>(
-              stream: _streamControllerLock.stream,
-              initialData: 0,
-              builder: (context, snapshot) {
-                switch (snapshot.data) {
-                  case ACTION_LOCK:
-                    _lastPage1Image = Image(
-                      image: AssetImage(
-                          'assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
-                    );
-                    return new UnLockToLock();
-                    break;
-                  case ACTION_UNLOCK:
-                    _lastPage1Image = Image(
-                      image: AssetImage(
-                          'assets/images/unlock_lock/解锁——上锁 原角度_0000.jpg'),
-                    );
-                    return new LockToUnLock();
-                    break;
-                  default:
-                    return _lastPage1Image;
-                }
-              }),
+        Container(
+          height: ScreenUtil().setHeight(600),
+          width: ScreenUtil().setWidth(800),
+          decoration: ShapeDecoration(
+              color: const Color(0xFF100F27),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(ScreenUtil().setHeight(80)),
+                      bottomRight:
+                          Radius.circular(ScreenUtil().setHeight(80))))),
+          child: Container(
+//            height: ScreenUtil().setHeight(460),
+//            width: ScreenUtil().setWidth(656),
+            child: StreamBuilder<Object>(
+                stream: _streamControllerLock.stream,
+                initialData: 0,
+                builder: (context, snapshot) {
+                  switch (snapshot.data) {
+                    case ACTION_LOCK:
+                      _lastPage1Image = Image(
+                        image: AssetImage(
+                            'assets/images/unlock_lock/解锁——上锁 原角度_00046.jpg'),
+                      );
+                      return new UnLockToLock();
+                      break;
+                    case ACTION_UNLOCK:
+                      _lastPage1Image = Image(
+                        image: AssetImage(
+                            'assets/images/unlock_lock/解锁——上锁 原角度_0000.jpg'),
+                      );
+                      return new LockToUnLock();
+                      break;
+                    default:
+                      return _lastPage1Image;
+                  }
+                }),
+          ),
         ),
         SizedBox(
           child: Container(
             padding: EdgeInsets.only(
-              left: ScreenUtil().setWidth(40),
+              left: ScreenUtil().setWidth(10),
+              top: ScreenUtil().setHeight(60),
             ),
-            color: const Color(0xFF100F27),
+            color: const Color(0xFFFFFFFF),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -265,7 +280,7 @@ class _VideoState extends State<CarControlHomeActivity> {
             children: <Widget>[
               Container(
                 padding: EdgeInsets.only(top: ScreenUtil().setHeight(10)),
-                color: const Color(0xFF100F27),
+                color: const Color(0xFFFFFFFF),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -278,7 +293,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                           color: const Color(0xFF584AA8),
                         ),
                         child: FlatButton(
-                            onPressed: (){
+                            onPressed: () {
                               _onLockClickLister(context);
                             },
                             child: StreamBuilder<Object>(
@@ -1168,7 +1183,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                 Expanded(
                   flex: 90,
                   child: Container(
-                    decoration: BoxDecoration(color: const Color(0xFF100F27)),
+                    decoration: BoxDecoration(color: Colors.white),
                     margin: EdgeInsets.only(top: 0.0),
                     child: Swiper(
                       itemBuilder: _swiperBuilder,
@@ -1186,101 +1201,6 @@ class _VideoState extends State<CarControlHomeActivity> {
                     ),
                   ),
                 ),
-//                Expanded(
-//                  flex: 28,
-//                  child: Container(
-//                    child: Container(
-//                      child: Card(
-//                          color: const Color(0x20FFFFFF),
-//                          margin: EdgeInsets.all(10),
-//                          child: Container(
-//                            padding: EdgeInsets.only(
-//                                left: 16.0, right: 16.0, top: 0.0, bottom: 0.0),
-//                            child: Column(
-//                              crossAxisAlignment: CrossAxisAlignment.start,
-//                              mainAxisAlignment: MainAxisAlignment.center,
-//                              children: <Widget>[
-//                                Text(
-//                                  '附近加油站',
-//                                  style: TextStyle(
-//                                      color: Colors.white, fontSize: 20.0),
-//                                ),
-//                                Row(
-//                                  mainAxisAlignment:
-//                                      MainAxisAlignment.spaceBetween,
-//                                  children: <Widget>[
-//                                    Row(
-//                                      children: <Widget>[
-//                                        ImageIcon(
-//                                          AssetImage(
-//                                            'assets/images/buttons/home_icon_gs_order@3x.png',
-//                                          ),
-//                                          color: Colors.white,
-//                                          size: 20,
-//                                        ),
-//                                        SizedBox(
-//                                          width: 14,
-//                                        ),
-//                                        Column(
-//                                          crossAxisAlignment:
-//                                              CrossAxisAlignment.start,
-//                                          children: <Widget>[
-//                                            Text(
-//                                              '船厂路加油站',
-//                                              style: TextStyle(
-//                                                  color: Colors.white,
-//                                                  fontSize: 18),
-//                                            ),
-//                                            Text(
-//                                              '距离600m',
-//                                              style: TextStyle(
-//                                                  color: Colors.white,
-//                                                  fontSize: 12),
-//                                            ),
-//                                          ],
-//                                        ),
-//                                      ],
-//                                    ),
-//                                    Column(
-//                                      crossAxisAlignment:
-//                                          CrossAxisAlignment.end,
-//                                      children: <Widget>[
-//                                        Text(
-//                                          '￥6.95',
-//                                          style: TextStyle(
-//                                              color: const Color(0xFF49D7FF),
-//                                              fontSize: 20),
-//                                        ),
-//                                        Text(
-//                                          '#95',
-//                                          style: TextStyle(
-//                                              color: const Color(0x9949D7FF),
-//                                              fontSize: 10),
-//                                        ),
-//                                      ],
-//                                    ),
-//                                  ],
-//                                ),
-//                                Divider(
-//                                  height: 10,
-//                                  color: Colors.grey,
-//                                ),
-//                                Row(
-//                                  mainAxisAlignment: MainAxisAlignment.start,
-//                                  crossAxisAlignment: CrossAxisAlignment.end,
-//                                  children: <Widget>[
-//                                    Text(
-//                                      '更多加油站 >',
-//                                      style: TextStyle(color: Colors.white),
-//                                    ),
-//                                  ],
-//                                ),
-//                              ],
-//                            ),
-//                          )),
-//                    ),
-//                  ),
-//                )
               ],
             ),
           ),
