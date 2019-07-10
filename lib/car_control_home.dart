@@ -7,6 +7,7 @@ import 'package:flutter_app_video_demo/animations/animation_cool_warm.dart';
 import 'package:flutter_app_video_demo/animations/animation_heat_cool.dart';
 import 'package:flutter_app_video_demo/animations/animation_heat_ori.dart';
 import 'package:flutter_app_video_demo/animations/animation_heat_warm.dart';
+import 'package:flutter_app_video_demo/animations/animation_init_ori.dart';
 import 'package:flutter_app_video_demo/animations/animation_lock_unlock.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_cool.dart';
 import 'package:flutter_app_video_demo/animations/animation_ori_heat.dart';
@@ -202,15 +203,15 @@ class _VideoState extends State<CarControlHomeActivity> {
     return Container(
       child: Column(children: <Widget>[
         Container(
-          height: ScreenUtil().setHeight(500),
+          height: ScreenUtil().setHeight(600),
           width: ScreenUtil().setWidth(800),
           decoration: ShapeDecoration(
               color: const Color(0xFF100F27),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(ScreenUtil().setHeight(80)),
+                      bottomLeft: Radius.circular(ScreenUtil().setHeight(50)),
                       bottomRight:
-                          Radius.circular(ScreenUtil().setHeight(80))))),
+                          Radius.circular(ScreenUtil().setHeight(50))))),
           child: Container(
             height: ScreenUtil().setHeight(460),
             width: ScreenUtil().setWidth(656),
@@ -242,7 +243,6 @@ class _VideoState extends State<CarControlHomeActivity> {
         SizedBox(
           child: Container(
             padding: EdgeInsets.only(
-              left: ScreenUtil().setWidth(10),
               top: ScreenUtil().setHeight(60),
             ),
             color: const Color(0xFFFFFFFF),
@@ -467,9 +467,16 @@ class _VideoState extends State<CarControlHomeActivity> {
   _pageCarControl() {
     return Container(
       child: Column(children: <Widget>[
-        SizedBox(
-          height: ScreenUtil().setHeight(460.0),
-          width: ScreenUtil().setWidth(656.0),
+        Container(
+          height: ScreenUtil().setHeight(600),
+          width: ScreenUtil().setWidth(800),
+          decoration: ShapeDecoration(
+              color: const Color(0xFF100F27),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(ScreenUtil().setHeight(50)),
+                      bottomRight:
+                          Radius.circular(ScreenUtil().setHeight(50))))),
           child: Stack(
             children: <Widget>[
               StreamBuilder<Object>(
@@ -564,7 +571,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                         return new CoolToWarm();
                         break;
                       default:
-                        return Center(child: _lastPage2Image);
+                        return InitOri();
                     }
                   }),
               StreamBuilder<Object>(
@@ -586,8 +593,8 @@ class _VideoState extends State<CarControlHomeActivity> {
         ),
         SizedBox(
           child: Container(
-            padding: EdgeInsets.only(top: ScreenUtil().setHeight(10)),
-            color: const Color(0xFF100F27),
+            padding: EdgeInsets.only(top: ScreenUtil().setHeight(60)),
+            color: const Color(0xFFFFFFFF),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -626,7 +633,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                     width: 270,
-                    color: const Color(0xFF100F27),
+                    color: const Color(0xFFFFFFFF),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -659,13 +666,15 @@ class _VideoState extends State<CarControlHomeActivity> {
                                                   AssetImage(
                                                     'assets/images/buttons/open_bt_no_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
                                                     'assets/images/buttons/open_bt_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 );
                                         }),
                                     onPressed: onHeatClickListener,
@@ -681,14 +690,16 @@ class _VideoState extends State<CarControlHomeActivity> {
                                       ? Text(
                                           '热车',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         )
                                       : Text(
                                           '正在热车',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         );
                                 }),
                           ],
@@ -720,13 +731,15 @@ class _VideoState extends State<CarControlHomeActivity> {
                                                   AssetImage(
                                                     'assets/images/buttons/heat_bt_no_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
                                                     'assets/images/buttons/heat_bt_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 );
                                         }),
                                     onPressed: onWarmClickListener,
@@ -742,14 +755,16 @@ class _VideoState extends State<CarControlHomeActivity> {
                                       ? Text(
                                           '温暖',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         )
                                       : Text(
                                           '温暖已开启',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         );
                                 }),
                           ],
@@ -781,13 +796,15 @@ class _VideoState extends State<CarControlHomeActivity> {
                                                   AssetImage(
                                                     'assets/images/buttons/heat_bt_no_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
                                                     'assets/images/buttons/heat_bt_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 );
                                         }),
                                     onPressed: onCoolClickListener,
@@ -803,14 +820,16 @@ class _VideoState extends State<CarControlHomeActivity> {
                                       ? Text(
                                           '清凉',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         )
                                       : Text(
                                           '清凉已开启',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         );
                                 }),
                           ],
@@ -828,9 +847,16 @@ class _VideoState extends State<CarControlHomeActivity> {
   _pageCarMode() {
     return Container(
       child: Column(children: <Widget>[
-        SizedBox(
-          height: ScreenUtil().setHeight(460.0),
-          width: ScreenUtil().setWidth(656.0),
+        Container(
+          height: ScreenUtil().setHeight(600),
+          width: ScreenUtil().setWidth(800),
+          decoration: ShapeDecoration(
+              color: const Color(0xFF100F27),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(ScreenUtil().setHeight(50)),
+                      bottomRight:
+                          Radius.circular(ScreenUtil().setHeight(50))))),
           child: Stack(
             children: <Widget>[
               StreamBuilder<Object>(
@@ -898,7 +924,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                         break;
                       default:
                         printLog('default');
-                        return Center(child: _lastPage3Image);
+                        return InitOri();
                     }
                   }),
               StreamBuilder<Object>(
@@ -920,10 +946,8 @@ class _VideoState extends State<CarControlHomeActivity> {
         ),
         SizedBox(
           child: Container(
-            padding: EdgeInsets.only(
-              left: ScreenUtil().setWidth(40),
-            ),
-            color: const Color(0xFF100F27),
+            padding: EdgeInsets.only(top: ScreenUtil().setHeight(60)),
+            color: Colors.white,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -962,7 +986,7 @@ class _VideoState extends State<CarControlHomeActivity> {
               children: <Widget>[
                 Container(
                     width: 270,
-                    color: const Color(0xFF100F27),
+                    color: Colors.white,
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -995,13 +1019,15 @@ class _VideoState extends State<CarControlHomeActivity> {
                                                   AssetImage(
                                                     'assets/images/buttons/window_bt_no_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
                                                     'assets/images/buttons/window_bt_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 );
                                         }),
                                     onPressed: onWindowClickListener,
@@ -1017,14 +1043,16 @@ class _VideoState extends State<CarControlHomeActivity> {
                                       ? Text(
                                           '开窗',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         )
                                       : Text(
                                           '车窗未关',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         );
                                 }),
                           ],
@@ -1056,13 +1084,15 @@ class _VideoState extends State<CarControlHomeActivity> {
                                                   AssetImage(
                                                     'assets/images/buttons/trail_bt_no_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
                                                     'assets/images/buttons/trail_bt_selection@3x.png',
                                                   ),
-                                                  color: Colors.white,
+                                                  color:
+                                                      const Color(0xFF584AA8),
                                                 );
                                         }),
                                     onPressed: onTrailClickListener,
@@ -1078,14 +1108,16 @@ class _VideoState extends State<CarControlHomeActivity> {
                                       ? Text(
                                           '开尾门',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         )
                                       : Text(
                                           '尾门已开',
                                           style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
+                                            fontSize: 15,
+                                            color: const Color(0xFF584AA8),
+                                          ),
                                         );
                                 }),
                           ],
@@ -1176,9 +1208,6 @@ class _VideoState extends State<CarControlHomeActivity> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: ScreenUtil().setHeight(100)),
-                ),
                 Expanded(
                   flex: 90,
                   child: Container(
@@ -1190,7 +1219,7 @@ class _VideoState extends State<CarControlHomeActivity> {
                       pagination: new SwiperPagination(
                           builder: DotSwiperPaginationBuilder(
                         color: Colors.grey,
-                        activeColor: Colors.white,
+                        activeColor: const Color(0xFF584AA8),
                         size: 7.0,
                         activeSize: 9.0,
                       )),
