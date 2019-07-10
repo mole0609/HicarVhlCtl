@@ -25,6 +25,7 @@ import 'package:flutter_app_video_demo/animations/animation_win_open.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_tra.dart';
 import 'package:flutter_app_video_demo/animations/animation_wined_untra.dart';
 import 'package:flutter_app_video_demo/pin_dialog_util.dart';
+import 'package:flutter_app_video_demo/utils/Verification_code_paget.dart';
 import 'package:flutter_app_video_demo/utils/date_format_util.dart';
 import 'package:flutter_app_video_demo/utils/dialog_util.dart';
 import 'package:flutter_app_video_demo/utils/flutter_screenutil.dart';
@@ -148,7 +149,6 @@ class _VideoState extends State<CarControlHomeActivity> {
     _isLocked = !_isLocked;
     _streamControllerLock.sink.add(getPage1Status());
     _globalKey.currentState.show('解锁----');
-//    showMyMaterialDialog(context);
 //    Navigator.push(context,new MaterialPageRoute(builder: (context) => new PinDialog()));
   }
 
@@ -293,6 +293,40 @@ class _VideoState extends State<CarControlHomeActivity> {
                         ),
                         child: FlatButton(
                             onPressed: () {
+
+                              showDialog<Null>(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return new AlertDialog(
+                                    title: new Text('请输入验证码',textAlign: TextAlign.center,),
+                                    content: new SingleChildScrollView(
+                                      child: new ListBody(
+                                        children: <Widget>[
+                                          VerificationCodeInput(codeLength: 6,letterSpace: 25,textSize: 20,inputBorder: CustomRectInputBorder(
+                                              letterSpace: 25.0,
+                                              textSize: 20.0,
+                                              textLength: 6,
+                                              borderSide:
+                                              BorderSide(color: Colors.blue.withOpacity(0.6), width: 2.0))),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      new FlatButton(
+                                        child: new Text('确定'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+//                                    backgroundColor: const Color(0xFF584AA8),
+                                  );
+                                },
+                              );
+//                              Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) {
+//                                return VerificationCodePage();
+//                              }));
                               _onLockClickLister(context);
                             },
                             child: StreamBuilder<Object>(
@@ -794,14 +828,14 @@ class _VideoState extends State<CarControlHomeActivity> {
                                           return !_isCooling
                                               ? ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/buttons/heat_bt_no_selection@3x.png',
+                                                    'assets/images/buttons/cold_bt_no_selection@3x.png',
                                                   ),
                                                   color:
                                                       const Color(0xFF584AA8),
                                                 )
                                               : ImageIcon(
                                                   AssetImage(
-                                                    'assets/images/buttons/heat_bt_selection@3x.png',
+                                                    'assets/images/buttons/cold_bt_selection@3x.png',
                                                   ),
                                                   color:
                                                       const Color(0xFF584AA8),
