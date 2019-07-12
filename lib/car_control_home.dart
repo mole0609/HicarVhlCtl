@@ -31,6 +31,7 @@ import 'package:flutter_app_video_demo/utils/dialog_util.dart';
 import 'package:flutter_app_video_demo/utils/flutter_screenutil.dart';
 import 'package:flutter_app_video_demo/utils/flutter_snackbar.dart';
 import 'package:flutter_app_video_demo/utils/log_util.dart';
+import 'package:flutter_app_video_demo/utils/pin_input_field.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'animations/animation_init_lock.dart';
@@ -293,7 +294,6 @@ class _VideoState extends State<CarControlHomeActivity> {
                         ),
                         child: FlatButton(
                             onPressed: () {
-
                               showDialog<Null>(
                                 context: context,
                                 barrierDismissible: false,
@@ -303,12 +303,13 @@ class _VideoState extends State<CarControlHomeActivity> {
                                     content: new SingleChildScrollView(
                                       child: new ListBody(
                                         children: <Widget>[
-                                          VerificationCodeInput(codeLength: 6,letterSpace: 25,textSize: 20,inputBorder: CustomRectInputBorder(
-                                              letterSpace: 25.0,
-                                              textSize: 20.0,
-                                              textLength: 6,
-                                              borderSide:
-                                              BorderSide(color: Colors.blue.withOpacity(0.6), width: 2.0))),
+//                                          VerificationCodeInput(codeLength: 6,letterSpace: 25,textSize: 20,inputBorder: CustomRectInputBorder(
+//                                              letterSpace: 25.0,
+//                                              textSize: 20.0,
+//                                              textLength: 6,
+//                                              borderSide:
+//                                              BorderSide(color: Colors.blue.withOpacity(0.6), width: 2.0))),
+                                          PinInputTextField(pinLength: 6,),
                                         ],
                                       ),
                                     ),
