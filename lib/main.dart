@@ -13,8 +13,8 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-//      home: BottomNavigationWidget(),
-      home: CarControlHomeActivity(),
+      home: BottomNavigationWidget(),
+//      home: CarControlHomeActivity(),
     );
   }
 }
